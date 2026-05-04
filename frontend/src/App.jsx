@@ -6,6 +6,7 @@ import Tasks from "./pages/Tasks";
 import Kanban from "./pages/Kanban";
 import Approval from "./pages/Approval";
 import Sidebar from "./components/Sidebar";
+import DocumentUpload from "./pages/DocumentUpload";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/kanban" element={<Kanban />} />
           <Route path="/approval" element={<Approval />} />
+          <Route path="/documents" element={<DocumentUpload />} />
         </Routes>
       </div>
 
