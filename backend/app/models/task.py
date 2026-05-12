@@ -4,6 +4,9 @@ from app.database import Base
 class Task(Base):
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     title = Column(String)
-    status = Column(String, default="todo")
+    description = Column(String)
+    status = Column(String, default="todo")   # todo / inprogress / done
+    assigned_to = Column(String)
+    created_by = Column(String)

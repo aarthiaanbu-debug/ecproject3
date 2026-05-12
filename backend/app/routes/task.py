@@ -15,24 +15,17 @@ def get_db():
         db.close()
 
 # CREATE TASK
-@router.post("/create")
+@router.post("/task/create")
 def create_task(title: str, description: str, db: Session = Depends(get_db)):
-
-    new_task = Task(
-        title=title,
-        status="todo"
-    )
-
-    db.add(new_task)
+    task = Task(title=title, description=description, status="todo")
+    db.add(task)
     db.commit()
-    db.refresh(new_task)
-
-    return new_task
+    return {"message": "Task created"}
 
 @router.get("/task/all")
 def get_tasks(
     db: Session = Depends(get_db),
-    user=Depends(get_current_user)  
+    user=Depends(get_current_user)   # 👈 இங்க add பண்ணணும்
 ):
     return db.query(Task).all()
 
