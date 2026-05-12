@@ -32,6 +32,7 @@ from app.routes import analytics
 from app.routes import notification
 from app.routes import document
 from app.routes import audit
+from app.models import audit_log
 
 # =========================
 # FASTAPI INIT

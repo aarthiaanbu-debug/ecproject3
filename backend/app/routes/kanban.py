@@ -1,9 +1,17 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
-from app.models.task import Task
 
-router = APIRouter(tags=["Kanban"])
+from app.database import SessionLocal
+from app.services.kanban_service import get_kanban_board_service
+
+router = APIRouter(
+    prefix="/kanban",
+    tags=["Kanban"]
+)
+
+# =========================
+# DB Dependency
+# =========================
 
 def get_db():
     db = SessionLocal()
@@ -12,15 +20,11 @@ def get_db():
     finally:
         db.close()
 
-# GET KANBAN BOARD
-@router.get("/kanban")
-def get_kanban(db: Session = Depends(get_db)):
-    todo = db.query(Task).filter(Task.status == "todo").all()
-    progress = db.query(Task).filter(Task.status == "inprogress").all()
-    done = db.query(Task).filter(Task.status == "done").all()
 
-    return {
-        "todo": todo,
-        "inprogress": progress,
-        "done": done
-    }
+# =========================
+# GET KANBAN BOARD
+# =========================
+
+@router.get("/")
+def get_kanban_board(db: Session = Depends(get_db)):
+    return get_kanban_board_service(db)

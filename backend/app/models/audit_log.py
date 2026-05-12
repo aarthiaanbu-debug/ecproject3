@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String
 from app.database import Base
-from datetime import datetime
+
 
 class AuditLog(Base):
 
@@ -8,11 +8,10 @@ class AuditLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
+    user_id = Column(Integer)
+
     action = Column(String)
 
-    user = Column(String)
+    entity = Column(String)
 
-    timestamp = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
+    entity_id = Column(Integer)

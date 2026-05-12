@@ -2,32 +2,24 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models.audit_log import AuditLog
+from app.services.audit_service import get_audit_logs_service
 
 router = APIRouter(
     prefix="/audit",
     tags=["Audit"]
 )
 
-# DB CONNECTION
 
 def get_db():
-
     db = SessionLocal()
-
     try:
         yield db
-
     finally:
         db.close()
 
-# GET AUDIT LOGS
 
 @router.get("/")
-def get_audit_logs(
+def get_logs(
     db: Session = Depends(get_db)
 ):
-
-    logs = db.query(AuditLog).all()
-
-    return logs
+    return get_audit_logs_service(db)
