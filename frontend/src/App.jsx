@@ -1,30 +1,57 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
+// pages
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import Kanban from "./pages/Kanban";
 import Approval from "./pages/Approval";
-import Sidebar from "./components/Sidebar";
 import DocumentUpload from "./pages/DocumentUpload";
+import Notifications from "./pages/Notifications";
+import AuditLogs from "./pages/AuditLogs";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import AIInsights from "./pages/AIInsights";
+import Subscription from "./pages/Subscription";
+import Success from "./pages/Success";
+import Cancel from "./pages/Cancel";
+
+// components
+import AnalyticsChart from "./components/AnalyticsChart";
+import NotificationBell from "./components/NotificationBell";
+
+// layouts
+import PublicLayout from "./layout/PublicLayout";
+import PrivateLayout from "./layout/PrivateLayout";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <Routes>
 
-      <Sidebar />
+      <Route path="/" element={<Navigate to="/login" />} />
 
-      <div className="flex-1 p-6">
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/kanban" element={<Kanban />} />
-          <Route path="/approval" element={<Approval />} />
-          <Route path="/documents" element={<DocumentUpload />} />
-        </Routes>
-      </div>
+      <Route element={<PublicLayout />}>
+        <Route path="/login" element={<Login />} />
+      </Route>
 
-    </div>
+      <Route element={<PrivateLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/kanban" element={<Kanban />} />
+        <Route path="/approval" element={<Approval />} />
+        <Route path="/documents" element={<DocumentUpload />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/audit-logs" element={<AuditLogs />} />
+        <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+        <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/ai-insights" element={<AIInsights />} />
+        <Route path="/subscription" element={<Subscription />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
+      </Route>
+
+    </Routes>
   );
 }

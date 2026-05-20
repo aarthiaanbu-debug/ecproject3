@@ -123,12 +123,10 @@ export const deleteDocument = (id) =>
 // AI SUMMARY
 export const getAISummary = () =>
   API.get("/dashboard/ai-summary");
-// ================= STRIPE =================
 
 export const createStripeSession = (plan) =>
-  API.post("/create-checkout-session", { plan });
-
-export const getStripeSession = (sessionId) =>
-  API.get(`/stripe/session/${sessionId}`);
+  API.post("/stripe/create-checkout-session", {
+    plan: plan,
+  });
 
 export default API;

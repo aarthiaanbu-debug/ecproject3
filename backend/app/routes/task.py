@@ -2,6 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
+
+from app.models.task import Task
+
+from app.middleware.role_middleware import (
+    role_required
+)
+
 from app.services.task_service import (
     create_task_service,
     get_tasks_service,
@@ -9,7 +16,9 @@ from app.services.task_service import (
     delete_task_service,
     assign_task_service
 )
+
 from app.utils.deps import get_current_user
+
 
 router = APIRouter(tags=["Task"])
 
@@ -19,9 +28,12 @@ router = APIRouter(tags=["Task"])
 # =========================
 
 def get_db():
+
     db = SessionLocal()
+
     try:
         yield db
+
     finally:
         db.close()
 
@@ -36,6 +48,7 @@ def create_task(
     description: str,
     db: Session = Depends(get_db)
 ):
+
     return create_task_service(
         db,
         title,
@@ -49,10 +62,17 @@ def create_task(
 
 @router.get("/task/all")
 def get_tasks(
+    page: int = 1,
+    limit: int = 10,
     db: Session = Depends(get_db),
-    user=Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
-    return get_tasks_service(db)
+
+    return get_tasks_service(
+        db,
+        page,
+        limit
+    )
 
 
 # =========================
@@ -65,6 +85,7 @@ def update_task(
     status: str,
     db: Session = Depends(get_db)
 ):
+
     return update_task_service(
         db,
         task_id,
@@ -79,8 +100,12 @@ def update_task(
 @router.delete("/task/delete/{task_id}")
 def delete_task(
     task_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(
+        role_required(["admin"])
+    )
 ):
+
     return delete_task_service(
         db,
         task_id
@@ -97,6 +122,7 @@ def assign_task(
     user: str,
     db: Session = Depends(get_db)
 ):
+
     return assign_task_service(
         db,
         task_id,
