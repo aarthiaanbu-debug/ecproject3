@@ -126,7 +126,7 @@ export const getAISummary = () =>
 // ================= STRIPE =================
 
 export const createStripeSession = (plan) =>
-  API.post("/create-checkout-session", { plan });
+  API.post("/stripe/create-checkout-session", { plan });
 
 export const getStripeSession = (sessionId) =>
   API.get(`/stripe/session/${sessionId}`);

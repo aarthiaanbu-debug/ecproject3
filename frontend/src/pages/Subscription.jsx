@@ -4,16 +4,18 @@ import { createStripeSession } from "../services/api";
 export default function Subscription() {
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
+  const [checkoutUrl, setCheckoutUrl] = useState("");
+  const [error, setError] = useState("");
 
   const plans = [
     {
       name: "pro",
-      price: "₹499",
+      price: "Rs. 499",
       features: ["Tasks Access", "Basic Analytics", "Email Support"],
     },
     {
       name: "premium",
-      price: "₹999",
+      price: "Rs. 999",
       features: ["Everything in Pro", "AI Insights", "Priority Support"],
     },
   ];
@@ -22,20 +24,24 @@ export default function Subscription() {
     try {
       setLoading(true);
       setSelectedPlan(plan);
+      setCheckoutUrl("");
+      setError("");
 
-      const res = await createStripeSession({ plan });
+      const res = await createStripeSession(plan);
+      const url = res.data.url;
 
-      // backend returns: { url: "https://checkout.stripe.com/..." }
-      const checkoutUrl = res.data.url;
-
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl; // 🔥 redirect to Stripe
+      if (url) {
+        setCheckoutUrl(url);
+        window.location.href = url;
       } else {
-        alert("No checkout URL received");
+        setError("No checkout URL received");
       }
     } catch (err) {
       console.log(err);
-      alert("Payment failed");
+      const message =
+        err.response?.data?.detail || "Payment failed. Please try again.";
+      setError(message);
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -44,6 +50,19 @@ export default function Subscription() {
   return (
     <div style={{ padding: "30px", color: "white" }}>
       <h1>Choose Your Plan</h1>
+
+      {error && (
+        <p style={{ color: "#fca5a5", marginTop: "12px" }}>{error}</p>
+      )}
+
+      {checkoutUrl && (
+        <p style={{ marginTop: "12px" }}>
+          Checkout URL:{" "}
+          <a href={checkoutUrl} style={{ color: "#93c5fd" }}>
+            {checkoutUrl}
+          </a>
+        </p>
+      )}
 
       <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
         {plans.map((plan) => (
@@ -60,8 +79,8 @@ export default function Subscription() {
             <h3>{plan.price}</h3>
 
             <ul>
-              {plan.features.map((f, i) => (
-                <li key={i}>{f}</li>
+              {plan.features.map((feature) => (
+                <li key={feature}>{feature}</li>
               ))}
             </ul>
 

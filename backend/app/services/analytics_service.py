@@ -1,19 +1,124 @@
-from app.models.task import Task
+from collections import Counter
+from datetime import date, datetime
+
+from app.models.approval import Approval
 from app.models.task import Task
 from app.models.user import User
-from datetime import datetime
 from app.cache.redis_cache import redis_client
 
 def get_analytics_service(db):
 
     tasks = db.query(Task).all()
+    approvals = db.query(Approval).all()
+
+    todo = len([t for t in tasks if normalize_status(t.status) == "todo"])
+    inprogress = len([t for t in tasks if normalize_status(t.status) == "inprogress"])
+    done = len([t for t in tasks if normalize_status(t.status) == "done"])
 
     return {
         "total": len(tasks),
-        "todo": len([t for t in tasks if t.status == "todo"]),
-        "inprogress": len([t for t in tasks if t.status == "inprogress"]),
-        "done": len([t for t in tasks if t.status == "done"])
+        "todo": todo,
+        "inprogress": inprogress,
+        "done": done,
+        "avg_completion_time": average_completion_time(tasks),
+        "overdue": count_overdue_tasks(tasks),
+        "due_today": count_due_today_tasks(tasks),
+        "top_performer": top_performer(tasks),
+        "approvals_pending": len(
+            [a for a in approvals if normalize_status(a.status) == "pending"]
+        ),
+        "approvals_approved": len(
+            [a for a in approvals if normalize_status(a.status) == "approved"]
+        ),
+        "approvals_rejected": len(
+            [a for a in approvals if normalize_status(a.status) == "rejected"]
+        ),
     }
+
+
+def normalize_status(status):
+    value = (status or "").lower().strip().replace("_", "")
+
+    if value in {"progress", "inprogress", "inprocess"}:
+        return "inprogress"
+
+    if value in {"done", "completed", "complete"}:
+        return "done"
+
+    return value or "todo"
+
+
+def get_task_date(task, *names):
+    for name in names:
+        value = getattr(task, name, None)
+
+        if isinstance(value, datetime):
+            return value.date()
+
+        if isinstance(value, date):
+            return value
+
+    return None
+
+
+def count_overdue_tasks(tasks):
+    today = date.today()
+
+    return len(
+        [
+            task
+            for task in tasks
+            if get_task_date(task, "deadline", "due_date")
+            and get_task_date(task, "deadline", "due_date") < today
+            and normalize_status(task.status) != "done"
+        ]
+    )
+
+
+def count_due_today_tasks(tasks):
+    today = date.today()
+
+    return len(
+        [
+            task
+            for task in tasks
+            if get_task_date(task, "deadline", "due_date") == today
+            and normalize_status(task.status) != "done"
+        ]
+    )
+
+
+def average_completion_time(tasks):
+    durations = []
+
+    for task in tasks:
+        if normalize_status(task.status) != "done":
+            continue
+
+        created = get_task_date(task, "created_at")
+        completed = get_task_date(task, "completed_at", "updated_at")
+
+        if created and completed:
+            durations.append(max((completed - created).days, 0))
+
+    if not durations:
+        return "0 days"
+
+    average_days = round(sum(durations) / len(durations), 1)
+    return f"{average_days:g} days"
+
+
+def top_performer(tasks):
+    completed_assignees = [
+        task.assigned_to
+        for task in tasks
+        if normalize_status(task.status) == "done" and task.assigned_to
+    ]
+
+    if not completed_assignees:
+        return "N/A"
+
+    return Counter(completed_assignees).most_common(1)[0][0]
 def get_dashboard_stats_service(
     db
 ):

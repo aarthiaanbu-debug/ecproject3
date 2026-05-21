@@ -23,6 +23,16 @@ def get_approvals(db: Session = Depends(get_db)):
     return get_approvals_service(db)
 
 
+@router.get("/all")
+def get_all_approvals(db: Session = Depends(get_db)):
+    return get_approvals_service(db)
+
+
 @router.post("/")
 def create_approval(data: dict, db: Session = Depends(get_db)):
+    return create_approval_service(db, data)
+
+
+@router.post("/create")
+def create_approval_compat(data: dict, db: Session = Depends(get_db)):
     return create_approval_service(db, data)

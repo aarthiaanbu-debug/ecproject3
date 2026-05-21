@@ -37,13 +37,8 @@ from app.routes import document
 from app.routes import audit
 from app.routes import websocket
 from app.routes import payment
+from app.routes import stripe
 from app.routes import stripe_webhook
-from fastapi import FastAPI
-from app.routes.payment import router as payment_router
-
-app = FastAPI()
-
-app.include_router(payment_router)
 
 # =========================
 # FASTAPI INIT
@@ -104,6 +99,7 @@ app.include_router(document.router)
 app.include_router(audit.router)
 app.include_router(websocket.router)
 app.include_router(payment.router)
+app.include_router(stripe.router)
 app.include_router(stripe_webhook.router)
 
 # =========================

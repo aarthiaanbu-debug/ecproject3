@@ -1,27 +1,23 @@
 import { useEffect, useState } from "react";
 
+import AnalyticsChart from "../components/AnalyticsChart";
 import {
+  addComment,
   getAnalytics,
+  getComments,
+  getDocuments,
   getNotifications,
   markNotificationRead,
-  getDocuments,
-  getComments,
-  addComment,
 } from "../services/api";
 
 export default function Dashboard() {
-
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [notifications, setNotifications] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [comments, setComments] = useState({});
   const [commentText, setCommentText] = useState({});
 
-  // =========================
-  // LOAD DASHBOARD
-  // =========================
   useEffect(() => {
     loadDashboard();
   }, []);
@@ -30,24 +26,19 @@ export default function Dashboard() {
     try {
       setLoading(true);
 
-      // ANALYTICS
       const analyticsRes = await getAnalytics();
       setData(analyticsRes.data);
 
-      // NOTIFICATIONS
       const notificationRes = await getNotifications();
       setNotifications(notificationRes.data || []);
 
-      // DOCUMENTS
       const documentRes = await getDocuments();
-
       const docs = Array.isArray(documentRes.data)
         ? documentRes.data
         : documentRes.data?.documents || [];
 
       setDocuments(docs);
 
-      // COMMENTS
       const tempComments = {};
 
       for (const doc of docs) {
@@ -65,29 +56,24 @@ export default function Dashboard() {
       }
 
       setComments(tempComments);
-
     } catch (err) {
       console.log("Dashboard Error:", err);
-
       setData({
         total: 0,
         todo: 0,
         inprogress: 0,
         done: 0,
-        avg_completion_time: 0,
+        avg_completion_time: "0 days",
         overdue: 0,
         due_today: 0,
         top_performer: "N/A",
+        approvals_pending: 0,
       });
-
     } finally {
       setLoading(false);
     }
   };
 
-  // =========================
-  // NOTIFICATION READ
-  // =========================
   const handleRead = async (id) => {
     try {
       await markNotificationRead(id);
@@ -97,9 +83,6 @@ export default function Dashboard() {
     }
   };
 
-  // =========================
-  // COMMENT ADD (FIXED)
-  // =========================
   const handleComment = async (docId, taskId) => {
     if (!commentText[docId]) return;
 
@@ -115,15 +98,11 @@ export default function Dashboard() {
       }));
 
       loadDashboard();
-
     } catch (err) {
       console.log(err);
     }
   };
 
-  // =========================
-  // LOADING UI
-  // =========================
   if (loading || !data) {
     return (
       <div className="h-screen flex items-center justify-center text-white text-xl">
@@ -133,14 +112,15 @@ export default function Dashboard() {
   }
 
   const {
-    total,
-    todo,
-    inprogress,
-    done,
-    avg_completion_time,
-    overdue,
-    due_today,
-    top_performer
+    total = 0,
+    todo = 0,
+    inprogress = 0,
+    done = 0,
+    avg_completion_time = "0 days",
+    overdue = 0,
+    due_today = 0,
+    top_performer = "N/A",
+    approvals_pending = 0,
   } = data;
 
   const percent = (value) => {
@@ -150,16 +130,12 @@ export default function Dashboard() {
 
   return (
     <div className="text-white p-6">
-
-      {/* HEADER */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold">📊 Dashboard Analytics</h1>
+        <h1 className="text-4xl font-bold">Dashboard Analytics</h1>
         <p className="text-gray-400 mt-2">Enterprise Workflow Monitoring</p>
       </div>
 
-      {/* CARDS */}
       <div className="grid md:grid-cols-4 gap-6 mb-8">
-
         <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 rounded-3xl">
           <h2>Total Tasks</h2>
           <p className="text-3xl font-bold">{total}</p>
@@ -179,10 +155,8 @@ export default function Dashboard() {
           <h2>Done</h2>
           <p className="text-3xl font-bold">{done}</p>
         </div>
-
       </div>
 
-      {/* TASK DISTRIBUTION */}
       <div className="bg-white/10 p-6 rounded-3xl mb-8">
         <h2 className="text-xl mb-4">Task Distribution</h2>
         <p>Todo: {percent(todo)}%</p>
@@ -190,47 +164,48 @@ export default function Dashboard() {
         <p>Done: {percent(done)}%</p>
       </div>
 
-      {/* PERFORMANCE */}
-      <div className="bg-white/10 p-6 rounded-3xl mb-8">
+      <AnalyticsChart data={data} />
+
+      <div className="bg-white/10 p-6 rounded-3xl my-8">
         <h2 className="text-xl mb-4">Performance</h2>
-        <p>⏱ Avg Time: {avg_completion_time}</p>
-        <p>⏰ Overdue: {overdue}</p>
-        <p>📅 Due Today: {due_today}</p>
-        <p>🏆 Top: {top_performer}</p>
+        <p>Avg Time: {avg_completion_time}</p>
+        <p>Overdue: {overdue}</p>
+        <p>Due Today: {due_today}</p>
+        <p>Top: {top_performer || "N/A"}</p>
+        <p>Approvals Pending: {approvals_pending}</p>
       </div>
 
-      {/* NOTIFICATIONS */}
       <div className="bg-white/10 p-6 rounded-3xl mb-8">
         <h2 className="text-xl mb-4">
-          Notifications ({notifications.filter(n => !n.is_read).length})
+          Notifications ({notifications.filter((n) => !n.is_read).length})
         </h2>
 
-        {notifications.map((n) => (
-          <div key={n.id} className="flex justify-between p-3 bg-black/20 mb-2">
+        {notifications.length === 0 && <p>No notifications</p>}
+
+        {notifications.map((notification) => (
+          <div
+            key={notification.id}
+            className="flex justify-between p-3 bg-black/20 mb-2"
+          >
             <div>
-              <p>{n.message}</p>
-              <small>{n.created_at}</small>
+              <p>{notification.message}</p>
+              <small>{notification.created_at}</small>
             </div>
 
-            {!n.is_read && (
-              <button onClick={() => handleRead(n.id)}>
-                Read
-              </button>
+            {!notification.is_read && (
+              <button onClick={() => handleRead(notification.id)}>Read</button>
             )}
           </div>
         ))}
       </div>
 
-      {/* DOCUMENTS + COMMENTS */}
       <div className="bg-white/10 p-6 rounded-3xl">
-
         <h2 className="text-xl mb-4">Documents</h2>
 
         {documents.length === 0 && <p>No Documents</p>}
 
         {documents.map((doc) => (
           <div key={doc.id} className="p-4 bg-black/20 mb-4">
-
             <h3>{doc.file_name}</h3>
 
             <a
@@ -242,11 +217,9 @@ export default function Dashboard() {
               View
             </a>
 
-            {/* COMMENTS */}
             <div className="mt-3">
-
-              {(comments[doc.id] || []).map((c) => (
-                <p key={c.id}>💬 {c.content}</p>
+              {(comments[doc.id] || []).map((comment) => (
+                <p key={comment.id}>{comment.content}</p>
               ))}
 
               <input
@@ -267,13 +240,10 @@ export default function Dashboard() {
               >
                 Send
               </button>
-
             </div>
-
           </div>
         ))}
       </div>
-
     </div>
   );
 }
