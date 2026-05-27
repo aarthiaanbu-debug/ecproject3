@@ -16,6 +16,12 @@ import AIInsights from "./pages/AIInsights";
 import Subscription from "./pages/Subscription";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
+import SLARules from "./pages/SLARules";
+import SLADashboard from "./pages/SLADashboard";
+import ApprovalEscalations from "./pages/ApprovalEscalations";
+import ApprovalDelegations from "./pages/ApprovalDelegations";
+import NotificationPreferences from "./pages/NotificationPreferences";
+import EnhancedAuditLogs from "./pages/EnhancedAuditLogs";
 
 // components
 import AnalyticsChart from "./components/AnalyticsChart";
@@ -50,6 +56,12 @@ export default function App() {
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
+        <Route path="/admin/sla-rules" element={<SLARules />} />
+        <Route path="/dashboard/sla" element={<SLADashboard />} />
+        <Route path="/approval-escalations" element={<ApprovalEscalations />} />
+        <Route path="/approval-delegations" element={<ApprovalDelegations />} />
+        <Route path="/settings/notification-preferences" element={<NotificationPreferences />} />
+        <Route path="/admin/audit-logs" element={<EnhancedAuditLogs />} />
       </Route>
 
     </Routes>

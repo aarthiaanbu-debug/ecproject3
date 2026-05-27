@@ -131,4 +131,46 @@ export const createStripeSession = (plan) =>
 export const getStripeSession = (sessionId) =>
   API.get(`/stripe/session/${sessionId}`);
 
+// ================= PHASE 9 SLA =================
+
+export const getSlaRules = () => API.get("/sla-rules");
+export const createSlaRule = (data) => API.post("/sla-rules", data);
+export const updateSlaRule = (id, data) => API.put(`/sla-rules/${id}`, data);
+export const disableSlaRule = (id) => API.delete(`/sla-rules/${id}`);
+
+export const getActiveSla = () => API.get("/sla-tracking/active");
+export const getBreachedSla = () => API.get("/sla-tracking/breached");
+export const getSlaByModule = (moduleName) =>
+  API.get(`/sla-tracking/module/${moduleName}`);
+
+export const getApprovalEscalations = () => API.get("/approval-escalations");
+export const getPendingApprovalEscalations = () =>
+  API.get("/approval-escalations/pending");
+export const createApprovalEscalation = (data) =>
+  API.post("/approval-escalations", data);
+export const resolveApprovalEscalation = (id) =>
+  API.put(`/approval-escalations/${id}/resolve`);
+export const cancelApprovalEscalation = (id) =>
+  API.put(`/approval-escalations/${id}/cancel`);
+
+export const createApprovalDelegation = (data) =>
+  API.post("/approval-delegations", data);
+export const getMyApprovalDelegations = () => API.get("/approval-delegations/me");
+export const getActiveApprovalDelegations = () =>
+  API.get("/approval-delegations/active");
+export const cancelApprovalDelegation = (id) =>
+  API.put(`/approval-delegations/${id}/cancel`);
+
+export const getNotificationPreferences = () =>
+  API.get("/notification-preferences/me");
+export const updateNotificationPreferences = (data) =>
+  API.put("/notification-preferences/me", data);
+
+export const getAuditLog = (id) => API.get(`/audit-logs/${id}`);
+export const getAuditLogsByModule = (moduleName) =>
+  API.get(`/audit-logs/module/${moduleName}`);
+export const getAuditLogsByUser = (userId) => API.get(`/audit-logs/user/${userId}`);
+export const getAuditLogsByDateRange = (params) =>
+  API.get("/audit-logs/date-range", { params });
+
 export default API;

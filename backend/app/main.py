@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # DATABASE
 from app.database import Base, engine
+from app.db_migrations import add_missing_columns
 
 # RATE LIMIT
 from slowapi.middleware import SlowAPIMiddleware
@@ -20,6 +21,8 @@ import app.models.approval
 import app.models.notification
 import app.models.document
 import app.models.audit
+import app.models.sla
+import app.models.workflow
 
 # =========================
 # ROUTES IMPORT
@@ -39,6 +42,8 @@ from app.routes import websocket
 from app.routes import payment
 from app.routes import stripe
 from app.routes import stripe_webhook
+from app.routes import sla
+from app.routes import workflow
 
 # =========================
 # FASTAPI INIT
@@ -55,6 +60,7 @@ app = FastAPI(
 # =========================
 
 Base.metadata.create_all(bind=engine)
+add_missing_columns()
 
 # =========================
 # CORS
@@ -101,6 +107,8 @@ app.include_router(websocket.router)
 app.include_router(payment.router)
 app.include_router(stripe.router)
 app.include_router(stripe_webhook.router)
+app.include_router(sla.router)
+app.include_router(workflow.router)
 
 # =========================
 # ROOT

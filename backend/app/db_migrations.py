@@ -1,0 +1,63 @@
+from sqlalchemy import inspect, text
+
+from app.database import engine
+
+
+def add_missing_columns():
+    inspector = inspect(engine)
+
+    ensure_columns(
+        inspector,
+        "audit_logs",
+        {
+            "user_id": "INTEGER",
+            "module_name": "VARCHAR",
+            "action_type": "VARCHAR",
+            "record_id": "INTEGER",
+            "old_data": "TEXT",
+            "new_data": "TEXT",
+            "ip_address": "VARCHAR",
+            "user_agent": "VARCHAR",
+        },
+    )
+    ensure_columns(
+        inspector,
+        "tasks",
+        {
+            "sla_status": "VARCHAR",
+            "sla_due_time": "DATETIME",
+            "is_sla_breached": "BOOLEAN DEFAULT 0",
+        },
+    )
+    ensure_columns(
+        inspector,
+        "approvals",
+        {
+            "sla_status": "VARCHAR",
+            "sla_due_time": "DATETIME",
+            "is_escalated": "BOOLEAN DEFAULT 0",
+            "current_escalation_to": "INTEGER",
+        },
+    )
+    ensure_columns(
+        inspector,
+        "notifications",
+        {
+            "notification_type": "VARCHAR DEFAULT 'general'",
+            "priority": "VARCHAR DEFAULT 'normal'",
+        },
+    )
+
+
+def ensure_columns(inspector, table_name, columns):
+    if not inspector.has_table(table_name):
+        return
+
+    existing = {column["name"] for column in inspector.get_columns(table_name)}
+
+    with engine.begin() as connection:
+        for column_name, column_type in columns.items():
+            if column_name not in existing:
+                connection.execute(
+                    text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
+                )
