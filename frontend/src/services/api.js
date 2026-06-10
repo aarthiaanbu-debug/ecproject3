@@ -65,8 +65,11 @@ export const getApprovals = () =>
   API.get("/approval/all");
 
 export const createApproval = (task_id) =>
-  API.post("/approval/create", null, {
-    params: { task_id },
+  API.post("/approval/create", { task_id });
+
+export const updateApprovalStatus = (id, status) =>
+  API.put(`/approval/${id}/status`, null, {
+    params: { status },
   });
 
 
@@ -125,8 +128,11 @@ export const getAISummary = () =>
   API.get("/dashboard/ai-summary");
 // ================= STRIPE =================
 
-export const createStripeSession = (plan) =>
-  API.post("/stripe/create-checkout-session", { plan });
+export const createStripeSession = (data) =>
+  API.post(
+    "/stripe/create-checkout-session",
+    typeof data === "string" ? { plan: data } : data
+  );
 
 export const getStripeSession = (sessionId) =>
   API.get(`/stripe/session/${sessionId}`);
@@ -172,5 +178,98 @@ export const getAuditLogsByModule = (moduleName) =>
 export const getAuditLogsByUser = (userId) => API.get(`/audit-logs/user/${userId}`);
 export const getAuditLogsByDateRange = (params) =>
   API.get("/audit-logs/date-range", { params });
+
+// ================= PHASE 10 TENANTS =================
+
+export const getUsers = () => API.get("/users");
+export const getTenants = () => API.get("/tenants");
+export const createTenant = (data) => API.post("/tenants", data);
+export const updateTenant = (id, data) => API.put(`/tenants/${id}`, data);
+export const assignUserToTenant = (data) => API.post("/tenants/assign-user", data);
+export const getTenantUsers = (tenantId) => API.get(`/tenants/${tenantId}/users`);
+export const getTenantUsage = (tenantId) => API.get(`/tenants/${tenantId}/usage`);
+export const getAllTenantUsage = () => API.get("/tenants/usage");
+
+// ================= LEAVE REQUESTS =================
+
+export const getLeaveRequests = () => API.get("/leave-requests");
+export const createLeaveRequest = (data) => API.post("/leave-requests", data);
+export const updateLeaveRequestStatus = (id, status) =>
+  API.put(`/leave-requests/${id}/status`, null, {
+    params: { status },
+  });
+  // ================= WORKSPACES =================
+
+export const getWorkspaces = () =>
+  API.get("/workspaces");
+
+export const getWorkspace = (id) =>
+  API.get(`/workspaces/${id}`);
+
+export const createWorkspace = (data) =>
+  API.post("/workspaces", data);
+
+export const updateWorkspace = (id, data) =>
+  API.put(`/workspaces/${id}`, data);
+
+export const archiveWorkspace = (id) =>
+  API.patch(`/workspaces/${id}/archive`);
+
+export const restoreWorkspace = (id) =>
+  API.patch(`/workspaces/${id}/restore`);
+
+
+// ================= WORKSPACE MEMBERS =================
+
+export const getWorkspaceMembers = (id) =>
+  API.get(`/workspaces/${id}/members`);
+
+export const addWorkspaceMember = (id, data) =>
+  API.post(`/workspaces/${id}/members`, data);
+
+export const updateWorkspaceMemberRole = (
+  workspaceId,
+  userId,
+  role
+) =>
+  API.patch(
+    `/workspaces/${workspaceId}/members/${userId}/role`,
+    { role }
+  );
+
+export const removeWorkspaceMember = (
+  workspaceId,
+  userId
+) =>
+  API.delete(
+    `/workspaces/${workspaceId}/members/${userId}`
+  );
+
+
+// ================= CHANNELS =================
+
+export const createChannel = (data) =>
+  API.post("/channels", data);
+
+export const getChannel = (id) =>
+  API.get(`/channels/${id}`);
+
+export const getWorkspaceChannels = (id) =>
+  API.get(`/workspaces/${id}/channels`);
+
+export const updateChannel = (id, data) =>
+  API.put(`/channels/${id}`, data);
+
+export const archiveChannel = (id) =>
+  API.patch(`/channels/${id}/archive`);
+
+export const restoreChannel = (id) =>
+  API.patch(`/channels/${id}/restore`);
+
+export const joinChannel = (channelId, userId) =>
+  API.post(`/channels/${channelId}/join/${userId}`);
+
+export const leaveChannel = (channelId, userId) =>
+  API.post(`/channels/${channelId}/leave/${userId}`);
 
 export default API;

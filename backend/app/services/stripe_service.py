@@ -11,8 +11,9 @@ PRICE_MAP = {
 }
 
 
-def create_checkout_session(plan: str) -> dict:
+def create_checkout_session(plan: str, customer_name: str | None = None) -> dict:
     normalized_plan = plan.lower().strip() if plan else ""
+    clean_customer_name = customer_name.strip() if customer_name else ""
 
     if normalized_plan not in PRICE_MAP:
         raise HTTPException(
@@ -32,12 +33,13 @@ def create_checkout_session(plan: str) -> dict:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             mode="payment",
+            customer_creation="always",
             line_items=[
                 {
                     "price_data": {
                         "currency": "inr",
                         "product_data": {
-                            "name": f"{normalized_plan.upper()} PLAN",
+                            "name": f"EC APP {normalized_plan.upper()} PLAN",
                         },
                         "unit_amount": PRICE_MAP[normalized_plan],
                     },
@@ -46,7 +48,10 @@ def create_checkout_session(plan: str) -> dict:
             ],
             success_url=f"{FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{FRONTEND_URL}/cancel",
-            metadata={"plan": normalized_plan},
+            metadata={
+                "plan": normalized_plan,
+                "customer_name": clean_customer_name,
+            },
         )
     except stripe.error.StripeError as exc:
         raise HTTPException(
@@ -82,4 +87,7 @@ def get_checkout_session(session_id: str) -> dict:
         if session.customer_details
         else None,
         "plan": session.metadata.get("plan") if session.metadata else None,
+        "customer_name": session.metadata.get("customer_name")
+        if session.metadata
+        else None,
     }

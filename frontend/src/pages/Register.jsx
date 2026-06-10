@@ -9,7 +9,7 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
-    role: "user"
+    role: "employee"
   });
 
   const handleSubmit = async () => {
@@ -33,7 +33,7 @@ export default function Register() {
 
         <select className="border p-2 w-full mb-3"
           onChange={(e) => setForm({ ...form, role: e.target.value })}>
-          <option value="user">User</option>
+          <option value="employee">Employee</option>
           <option value="manager">Manager</option>
           <option value="admin">Admin</option>
         </select>

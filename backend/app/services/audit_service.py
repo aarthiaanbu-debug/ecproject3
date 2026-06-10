@@ -4,14 +4,30 @@ from app.models.audit import AuditLog
 def create_audit_log(
     db,
     action,
-    user,
-    details
+    user="System",
+    details=None,
+    user_id=1,
+    module_name=None,
+    action_type=None,
+    record_id=None,
+    old_data=None,
+    new_data=None,
+    ip_address=None,
+    user_agent=None,
 ):
 
     log = AuditLog(
         action=action,
         user=user,
-        details=details
+        details=details,
+        user_id=user_id,
+        module_name=module_name,
+        action_type=action_type,
+        record_id=record_id,
+        old_data=old_data,
+        new_data=new_data,
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
 
     db.add(log)
@@ -35,7 +51,11 @@ def get_audit_log(db, log_id):
 
 
 def get_audit_logs_by_module(db, module_name):
-    return db.query(AuditLog).filter(AuditLog.module_name == module_name).all()
+    return (
+        db.query(AuditLog)
+        .filter(AuditLog.module_name.ilike(module_name))
+        .all()
+    )
 
 
 def get_audit_logs_by_user(db, user_id):

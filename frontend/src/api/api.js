@@ -128,5 +128,54 @@ export const createStripeSession = (plan) =>
   API.post("/stripe/create-checkout-session", {
     plan: plan,
   });
+  // ================= WORKSPACES =================
+
+export const getWorkspaces = () =>
+  API.get("/workspaces");
+
+export const getWorkspace = (id) =>
+  API.get(`/workspaces/${id}`);
+
+export const createWorkspace = (data) =>
+  API.post("/workspaces", data);
+
+export const updateWorkspace = (id, data) =>
+  API.put(`/workspaces/${id}`, data);
+
+export const archiveWorkspace = (id) =>
+  API.patch(`/workspaces/${id}/archive`);
+
+export const restoreWorkspace = (id) =>
+  API.patch(`/workspaces/${id}/restore`);
+
+
+// ================= CHANNELS =================
+
+export const createChannel = (data) =>
+  API.post("/channels", data);
+
+export const getChannel = (id) =>
+  API.get(`/channels/${id}`);
+
+export const getWorkspaceChannels = (workspaceId) =>
+  API.get(`/channels/workspace/${workspaceId}`);
+
+export const updateChannel = (id, data) =>
+  API.put(`/channels/${id}`, data);
+
+export const archiveChannel = (id) =>
+  API.patch(`/channels/${id}/archive`);
+
+export const restoreChannel = (id) =>
+  API.patch(`/channels/${id}/restore`);
+
+
+// ================= CHANNEL MEMBERS =================
+
+export const joinChannel = (channelId, userId) =>
+  API.post(`/channels/${channelId}/join/${userId}`);
+
+export const leaveChannel = (channelId, userId) =>
+  API.post(`/channels/${channelId}/leave/${userId}`);
 
 export default API;

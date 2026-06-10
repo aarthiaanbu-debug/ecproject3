@@ -41,3 +41,15 @@ def mark_notification(
         db,
         notification_id
     )
+
+
+@router.patch("/{notification_id}/read")
+def mark_notification_read(
+    notification_id: int,
+    db: Session = Depends(get_db)
+):
+
+    return notification_service.mark_read(
+        db,
+        notification_id
+    )

@@ -80,13 +80,13 @@ def get_tasks(
 # =========================
 
 @router.put("/task/update/{task_id}")
-def update_task(
+async def update_task(
     task_id: int,
     status: str,
     db: Session = Depends(get_db)
 ):
 
-    return update_task_service(
+    return await update_task_service(
         db,
         task_id,
         status

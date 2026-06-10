@@ -15,4 +15,4 @@ class User(Base):
 
     role = Column(String, default="employee")
 
-    # organization_id = Column(Integer)
+    organization_id = Column(Integer, nullable=True)

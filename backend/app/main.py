@@ -23,6 +23,12 @@ import app.models.document
 import app.models.audit
 import app.models.sla
 import app.models.workflow
+import app.models.leave
+import app.models.workspace
+import app.models.workspace_member
+import app.models.channel
+import app.models.channel_member
+
 
 # =========================
 # ROUTES IMPORT
@@ -44,6 +50,10 @@ from app.routes import stripe
 from app.routes import stripe_webhook
 from app.routes import sla
 from app.routes import workflow
+from app.routes import tenant
+from app.routes import leave
+from app.routes import workspace
+from app.routes import channel
 
 # =========================
 # FASTAPI INIT
@@ -100,6 +110,7 @@ app.include_router(kanban.router)
 app.include_router(comment.router)
 app.include_router(approval.router)
 app.include_router(analytics.router)
+app.include_router(analytics.dashboard_router)
 app.include_router(notification.router)
 app.include_router(document.router)
 app.include_router(audit.router)
@@ -109,6 +120,10 @@ app.include_router(stripe.router)
 app.include_router(stripe_webhook.router)
 app.include_router(sla.router)
 app.include_router(workflow.router)
+app.include_router(tenant.router)
+app.include_router(leave.router)
+app.include_router(workspace.router)
+app.include_router(channel.router)
 
 # =========================
 # ROOT

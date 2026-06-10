@@ -16,6 +16,10 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("refresh_token", res.data.refresh_token);
+      localStorage.setItem(
+        "role",
+        String(res.data.role || "employee").trim().toLowerCase()
+      );
 
       alert("Login Success");
       navigate("/dashboard");

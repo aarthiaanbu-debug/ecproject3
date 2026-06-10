@@ -5,6 +5,7 @@ from app.database import SessionLocal
 from app.services.analytics_service import get_analytics_service
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
+dashboard_router = APIRouter(tags=["Role Dashboards"])
 
 def get_db():
     db = SessionLocal()
@@ -55,3 +56,18 @@ def admin_dashboard():
         "documents": 250,
         "active_tasks": 80
     }
+
+
+@dashboard_router.get("/employee/dashboard")
+def employee_dashboard_alias():
+    return employee_dashboard()
+
+
+@dashboard_router.get("/manager/dashboard")
+def manager_dashboard_alias():
+    return manager_dashboard()
+
+
+@dashboard_router.get("/admin/dashboard")
+def admin_dashboard_alias():
+    return admin_dashboard()

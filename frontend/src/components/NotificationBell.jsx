@@ -1,8 +1,18 @@
+import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
+import { getNotifications } from "../services/api";
 
-export default function NotificationBell({ notifications = [] }) {
+export default function NotificationBell() {
+  const [unread, setUnread] = useState(0);
 
-  const unread = notifications.filter(n => !n.is_read).length;
+  useEffect(() => {
+    getNotifications()
+      .then((res) => {
+        const notifications = Array.isArray(res.data) ? res.data : [];
+        setUnread(notifications.filter((item) => !item.is_read).length);
+      })
+      .catch(() => setUnread(0));
+  }, []);
 
   return (
     <div className="relative">

@@ -9,11 +9,12 @@ router = APIRouter(prefix="/stripe", tags=["stripe"])
 
 class CheckoutSessionRequest(BaseModel):
     plan: str
+    customer_name: str | None = None
 
 
 @router.post("/create-checkout-session")
 def checkout_session(payload: CheckoutSessionRequest):
-    return create_checkout_session(payload.plan)
+    return create_checkout_session(payload.plan, payload.customer_name)
 
 
 @router.get("/session/{session_id}")

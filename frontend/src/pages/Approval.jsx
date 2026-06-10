@@ -1,16 +1,25 @@
 import { useEffect, useState } from "react";
-import { getApprovals } from "../services/api";
+import { getApprovals, updateApprovalStatus } from "../services/api";
 
 export default function Approval() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    load();
+  }, []);
+
+  const load = () => {
     getApprovals()
       .then((res) => setData(Array.isArray(res.data) ? res.data : []))
       .catch(() => setData([]))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  const updateStatus = async (approvalId, status) => {
+    await updateApprovalStatus(approvalId, status);
+    load();
+  };
 
   const badgeClass = (status) => {
     if (status === "approved") {
@@ -49,12 +58,27 @@ export default function Approval() {
               </p>
             </div>
 
-            <div
-              className={`px-3 py-1 rounded-full text-sm font-bold ${badgeClass(
-                approval.status
-              )}`}
-            >
-              {approval.status || "pending"}
+            <div className="flex items-center gap-2">
+              <div
+                className={`px-3 py-1 rounded-full text-sm font-bold ${badgeClass(
+                  approval.status
+                )}`}
+              >
+                {approval.status || "pending"}
+              </div>
+
+              <button
+                onClick={() => updateStatus(approval.id, "approved")}
+                className="rounded bg-green-600 px-3 py-1 text-sm text-white"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => updateStatus(approval.id, "rejected")}
+                className="rounded bg-red-600 px-3 py-1 text-sm text-white"
+              >
+                Reject
+              </button>
             </div>
           </div>
         ))}

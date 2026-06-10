@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import HTTPException
 
 from app.models.approval import Approval
+from app.services.audit_service import create_audit_log
 from app.models.workflow import (
     ApprovalDelegation,
     ApprovalEscalation,
@@ -26,6 +27,16 @@ def create_escalation(db, payload):
 
     db.commit()
     db.refresh(escalation)
+    create_audit_log(
+        db,
+        action="APPROVAL_ESCALATED",
+        user="Aarthi",
+        details=f"Approval {payload.approval_id} escalated to user {payload.escalated_to}",
+        module_name="Approval",
+        action_type="Escalated",
+        record_id=payload.approval_id,
+        new_data=f"escalated_to={payload.escalated_to}; reason={payload.reason}",
+    )
     return escalation
 
 
@@ -73,6 +84,16 @@ def set_escalation_status(db, escalation_id, new_status):
 
     db.commit()
     db.refresh(escalation)
+    create_audit_log(
+        db,
+        action=f"ESCALATION_{new_status.upper()}",
+        user="Aarthi",
+        details=f"Escalation {escalation.id} marked {new_status}",
+        module_name="Approval",
+        action_type=new_status.title(),
+        record_id=escalation.approval_id,
+        new_data=f"status={new_status}",
+    )
     return escalation
 
 

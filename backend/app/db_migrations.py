@@ -11,6 +11,9 @@ def add_missing_columns():
         "audit_logs",
         {
             "user_id": "INTEGER",
+            "user": "VARCHAR",
+            "action": "VARCHAR",
+            "details": "TEXT",
             "module_name": "VARCHAR",
             "action_type": "VARCHAR",
             "record_id": "INTEGER",
@@ -18,12 +21,35 @@ def add_missing_columns():
             "new_data": "TEXT",
             "ip_address": "VARCHAR",
             "user_agent": "VARCHAR",
+            "created_at": "DATETIME",
+        },
+    )
+    ensure_columns(
+        inspector,
+        "organizations",
+        {
+            "domain": "VARCHAR",
+            "plan": "VARCHAR DEFAULT 'basic'",
+            "is_active": "INTEGER DEFAULT 1",
+            "created_at": "DATETIME",
+        },
+    )
+    ensure_columns(
+        inspector,
+        "users",
+        {
+            "organization_id": "INTEGER",
         },
     )
     ensure_columns(
         inspector,
         "tasks",
         {
+            "organization_id": "INTEGER",
+            "priority": "VARCHAR DEFAULT 'medium'",
+            "deadline": "DATETIME",
+            "created_at": "DATETIME",
+            "completed_at": "DATETIME",
             "sla_status": "VARCHAR",
             "sla_due_time": "DATETIME",
             "is_sla_breached": "BOOLEAN DEFAULT 0",
@@ -43,6 +69,7 @@ def add_missing_columns():
         inspector,
         "notifications",
         {
+            "user_id": "INTEGER",
             "notification_type": "VARCHAR DEFAULT 'general'",
             "priority": "VARCHAR DEFAULT 'normal'",
         },

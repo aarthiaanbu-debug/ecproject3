@@ -7,20 +7,24 @@ export default function Sidebar() {
 
   const menuItems = [
     { path: "/dashboard", label: "Dashboard" },
+    { path: "/analytics-dashboard", label: "Analytics Dashboard" },
     { path: "/tasks", label: "Tasks" },
     { path: "/kanban", label: "Kanban" },
     { path: "/approval", label: "Approval" },
+    { path: "/leave-request", label: "Leave Requests" },
     { path: "/documents", label: "Documents" },
+    { path: "/notifications", label: "Notifications" },
     { path: "/dashboard/sla", label: "SLA Dashboard" },
     { path: "/admin/sla-rules", label: "SLA Rules" },
     { path: "/approval-escalations", label: "Approval Escalations" },
     { path: "/approval-delegations", label: "Approval Delegations" },
-    {
-      path: "/settings/notification-preferences",
-      label: "Notification Preferences",
-    },
+    { path: "/settings/notification-preferences", label: "Notification Preferences" },
     { path: "/admin/audit-logs", label: "Audit Logs" },
+    { path: "/admin/tenants", label: "Tenant Management" },
+    { path: "/dashboard/tenant-usage", label: "Tenant Usage" },
     { path: "/subscription", label: "Subscription" },
+    { path: "/workspaces", label: "Workspaces" },
+    { path: "/channels", label: "Channels" },
   ];
 
   const handleLogout = () => {

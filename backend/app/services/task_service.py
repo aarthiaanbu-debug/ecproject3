@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.task import Task
 from app.models.notification import Notification
-from app.models.audit import AuditLog
+from app.services.audit_service import create_audit_log
 
 # =========================
 # CREATE TASK SERVICE
@@ -18,7 +18,8 @@ def create_task_service(
         title=title,
         description=description,
         status="todo",
-        assigned_to="Aarthi"
+        assigned_to="Aarthi",
+        organization_id=1,
     )
 
     db.add(task)
@@ -34,15 +35,16 @@ def create_task_service(
 
     db.add(notification)
 
-    # AUDIT LOG
-    audit = AuditLog(
-        user_id=1,
+    create_audit_log(
+        db,
         action="TASK_CREATED",
-        entity="Task",
-        entity_id=task.id
+        user="Aarthi",
+        details=f"Task created: {task.title}",
+        module_name="Task",
+        action_type="Created",
+        record_id=task.id,
+        new_data=f"title={task.title}; status={task.status}; assigned_to={task.assigned_to}",
     )
-
-    db.add(audit)
 
     db.commit()
 
@@ -91,10 +93,6 @@ def get_tasks_service(
 
 from app.models.task import Task
 
-from app.services.audit_service import (
-    create_audit_log
-)
-
 from app.services.kanban_service import (
     broadcast_kanban_update
 )
@@ -114,6 +112,8 @@ async def update_task_service(
             "message": "Task not found"
         }
 
+    old_status = task.status
+
     # UPDATE STATUS
     task.status = status
 
@@ -122,8 +122,14 @@ async def update_task_service(
     # AUDIT LOG
     create_audit_log(
         db,
-        "Task Updated",
-        "Aarthi"
+        action="TASK_UPDATED",
+        user="Aarthi",
+        details=f"Task {task.id} status changed from {old_status} to {status}",
+        module_name="Task",
+        action_type="Updated",
+        record_id=task.id,
+        old_data=f"status={old_status}",
+        new_data=f"status={status}",
     )
 
     # LIVE KANBAN UPDATE
@@ -162,15 +168,16 @@ def delete_task_service(
 
     db.add(notification)
 
-    # AUDIT LOG
-    audit = AuditLog(
-        user_id=1,
+    create_audit_log(
+        db,
         action="TASK_DELETED",
-        entity="Task",
-        entity_id=task.id
+        user="Aarthi",
+        details=f"Task deleted: {task.title}",
+        module_name="Task",
+        action_type="Deleted",
+        record_id=task.id,
+        old_data=f"title={task.title}; status={task.status}; assigned_to={task.assigned_to}",
     )
-
-    db.add(audit)
 
     db.delete(task)
 
@@ -200,6 +207,7 @@ def assign_task_service(
             "message": "Task not found"
         }
 
+    old_assignee = task.assigned_to
     task.assigned_to = user
 
     # NOTIFICATION
@@ -211,15 +219,17 @@ def assign_task_service(
 
     db.add(notification)
 
-    # AUDIT LOG
-    audit = AuditLog(
-        user_id=1,
+    create_audit_log(
+        db,
         action="TASK_ASSIGNED",
-        entity="Task",
-        entity_id=task.id
+        user="Aarthi",
+        details=f"Task {task.id} assigned to {user}",
+        module_name="Task",
+        action_type="Updated",
+        record_id=task.id,
+        old_data=f"assigned_to={old_assignee}",
+        new_data=f"assigned_to={user}",
     )
-
-    db.add(audit)
 
     db.commit()
 
