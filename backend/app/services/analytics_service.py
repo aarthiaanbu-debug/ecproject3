@@ -1,6 +1,8 @@
 from collections import Counter
 from datetime import date, datetime
 
+from sqlalchemy import func, select
+
 from app.models.approval import Approval
 from app.models.task import Task
 from app.models.user import User
@@ -8,8 +10,8 @@ from app.cache.redis_cache import redis_client
 
 def get_analytics_service(db):
 
-    tasks = db.query(Task).all()
-    approvals = db.query(Approval).all()
+    tasks = db.execute(select(Task)).scalars().all()
+    approvals = db.execute(select(Approval)).scalars().all()
 
     todo = len([t for t in tasks if normalize_status(t.status) == "todo"])
     inprogress = len([t for t in tasks if normalize_status(t.status) == "inprogress"])
@@ -147,7 +149,7 @@ def get_dashboard_stats_service(
     if cache:
         return cache
 
-    total = db.query(Task).count()
+    total = db.execute(select(func.count()).select_from(Task)).scalar()
 
     data = {
         "total_tasks": total
@@ -166,9 +168,11 @@ def get_dashboard_stats_service(
 
 def get_high_priority_tasks(db):
 
-    tasks = db.query(Task).filter(
+    tasks = db.execute(
+        select(Task).where(
         Task.status != "completed"
-    ).all()
+        )
+    ).scalars().all()
 
     high_priority = []
 
@@ -190,7 +194,7 @@ def get_high_priority_tasks(db):
 
 def detect_delay_risk(db):
 
-    tasks = db.query(Task).all()
+    tasks = db.execute(select(Task)).scalars().all()
 
     risky_tasks = []
 
@@ -214,7 +218,7 @@ def smart_assign_task(
     task
 ):
 
-    users = db.query(User).all()
+    users = db.execute(select(User)).scalars().all()
 
     lowest_user = None
 
@@ -222,9 +226,11 @@ def smart_assign_task(
 
     for user in users:
 
-        count = db.query(Task).filter(
-            Task.assigned_to == user.name
-        ).count()
+        count = db.execute(
+            select(func.count())
+            .select_from(Task)
+            .where(Task.assigned_to == user.name)
+        ).scalar()
 
         if count < lowest_count:
 
@@ -247,7 +253,7 @@ def smart_assign_task(
 
 def assign_based_on_performance(db):
 
-    users = db.query(User).all()
+    users = db.execute(select(User)).scalars().all()
 
     best_user = None
 
@@ -255,10 +261,14 @@ def assign_based_on_performance(db):
 
     for user in users:
 
-        completed_tasks = db.query(Task).filter(
-            Task.assigned_to == user.name,
-            Task.status == "completed"
-        ).count()
+        completed_tasks = db.execute(
+            select(func.count())
+            .select_from(Task)
+            .where(
+                Task.assigned_to == user.name,
+                Task.status == "completed"
+            )
+        ).scalar()
 
         if completed_tasks > completed_max:
 

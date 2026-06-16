@@ -1,18 +1,26 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.database import Base
 
-class User(Base):
 
+class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    name = Column(String)
+    name: Mapped[str] = mapped_column(String)
 
-    email = Column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, unique=True)
 
-    password = Column(String)
+    password: Mapped[str] = mapped_column(String)
 
-    role = Column(String, default="employee")
+    role: Mapped[str] = mapped_column(
+        String,
+        default="employee"
+    )
 
-    organization_id = Column(Integer, nullable=True)
+    organization_id: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True
+    )

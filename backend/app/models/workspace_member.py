@@ -1,19 +1,22 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.database import Base
 
 
 class WorkspaceMember(Base):
     __tablename__ = "workspace_members"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    workspace_id = Column(Integer, nullable=False)
+    workspace_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    user_id = Column(Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    role = Column(String, default="Member")
+    role: Mapped[str | None] = mapped_column(String, default="Member")
 
-    joined_at = Column(DateTime, default=datetime.utcnow)
+    joined_at: Mapped[datetime | None] = mapped_column(DateTime, default=datetime.utcnow)
 
-    is_active = Column(Boolean, default=True)
+    is_active: Mapped[bool | None] = mapped_column(Boolean, default=True)

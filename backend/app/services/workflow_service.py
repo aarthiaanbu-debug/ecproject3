@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import HTTPException
+from sqlalchemy import select
 
 from app.models.approval import Approval
 from app.services.audit_service import create_audit_log
@@ -12,7 +13,9 @@ from app.models.workflow import (
 
 
 def create_escalation(db, payload):
-    approval = db.query(Approval).filter(Approval.id == payload.approval_id).first()
+    approval = db.execute(
+        select(Approval).where(Approval.id == payload.approval_id)
+    ).scalar_one_or_none()
     if not approval:
         raise HTTPException(status_code=404, detail="Approval not found")
 
@@ -41,31 +44,27 @@ def create_escalation(db, payload):
 
 
 def list_escalations(db):
-    return db.query(ApprovalEscalation).all()
+    return db.execute(select(ApprovalEscalation)).scalars().all()
 
 
 def list_pending_escalations(db):
-    return (
-        db.query(ApprovalEscalation)
-        .filter(ApprovalEscalation.status == "pending")
-        .all()
-    )
+    return db.execute(
+        select(ApprovalEscalation).where(ApprovalEscalation.status == "pending")
+    ).scalars().all()
 
 
 def escalation_history(db, approval_id):
-    return (
-        db.query(ApprovalEscalation)
-        .filter(ApprovalEscalation.approval_id == approval_id)
-        .all()
-    )
+    return db.execute(
+        select(ApprovalEscalation).where(
+            ApprovalEscalation.approval_id == approval_id
+        )
+    ).scalars().all()
 
 
 def set_escalation_status(db, escalation_id, new_status):
-    escalation = (
-        db.query(ApprovalEscalation)
-        .filter(ApprovalEscalation.id == escalation_id)
-        .first()
-    )
+    escalation = db.execute(
+        select(ApprovalEscalation).where(ApprovalEscalation.id == escalation_id)
+    ).scalar_one_or_none()
     if not escalation:
         raise HTTPException(status_code=404, detail="Escalation not found")
     if escalation.status != "pending":
@@ -75,9 +74,9 @@ def set_escalation_status(db, escalation_id, new_status):
     escalation.resolved_at = datetime.utcnow()
 
     if new_status in {"resolved", "cancelled"}:
-        approval = (
-            db.query(Approval).filter(Approval.id == escalation.approval_id).first()
-        )
+        approval = db.execute(
+            select(Approval).where(Approval.id == escalation.approval_id)
+        ).scalar_one_or_none()
         if approval:
             approval.is_escalated = False
             approval.current_escalation_to = None
@@ -98,16 +97,16 @@ def set_escalation_status(db, escalation_id, new_status):
 
 
 def create_delegation(db, payload):
-    conflicts = (
-        db.query(ApprovalDelegation)
-        .filter(
+    conflicts = db.execute(
+        select(ApprovalDelegation)
+        .where(
             ApprovalDelegation.delegator_id == payload.delegator_id,
             ApprovalDelegation.is_active == True,
             ApprovalDelegation.start_date <= payload.end_date,
             ApprovalDelegation.end_date >= payload.start_date,
         )
-        .first()
-    )
+        .limit(1)
+    ).scalar_one_or_none()
     if conflicts:
         raise HTTPException(status_code=400, detail="Delegation date conflict")
 
@@ -119,32 +118,26 @@ def create_delegation(db, payload):
 
 
 def my_delegations(db, user_id=1):
-    return (
-        db.query(ApprovalDelegation)
-        .filter(ApprovalDelegation.delegator_id == user_id)
-        .all()
-    )
+    return db.execute(
+        select(ApprovalDelegation).where(ApprovalDelegation.delegator_id == user_id)
+    ).scalars().all()
 
 
 def active_delegations(db):
     now = datetime.utcnow()
-    return (
-        db.query(ApprovalDelegation)
-        .filter(
+    return db.execute(
+        select(ApprovalDelegation).where(
             ApprovalDelegation.is_active == True,
             ApprovalDelegation.start_date <= now,
             ApprovalDelegation.end_date >= now,
         )
-        .all()
-    )
+    ).scalars().all()
 
 
 def cancel_delegation(db, delegation_id):
-    delegation = (
-        db.query(ApprovalDelegation)
-        .filter(ApprovalDelegation.id == delegation_id)
-        .first()
-    )
+    delegation = db.execute(
+        select(ApprovalDelegation).where(ApprovalDelegation.id == delegation_id)
+    ).scalar_one_or_none()
     if not delegation:
         raise HTTPException(status_code=404, detail="Delegation not found")
     delegation.is_active = False
@@ -154,11 +147,9 @@ def cancel_delegation(db, delegation_id):
 
 
 def get_or_create_preferences(db, user_id=1):
-    prefs = (
-        db.query(NotificationPreference)
-        .filter(NotificationPreference.user_id == user_id)
-        .first()
-    )
+    prefs = db.execute(
+        select(NotificationPreference).where(NotificationPreference.user_id == user_id)
+    ).scalar_one_or_none()
     if prefs:
         return prefs
 

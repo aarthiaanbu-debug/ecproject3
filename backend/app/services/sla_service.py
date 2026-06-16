@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 
 from app.models.approval import Approval
 from app.models.sla import SLARule, SLATracking
@@ -16,11 +17,13 @@ def create_sla_rule(db, payload):
 
 
 def list_sla_rules(db):
-    return db.query(SLARule).all()
+    return db.execute(select(SLARule)).scalars().all()
 
 
 def get_sla_rule(db, rule_id):
-    rule = db.query(SLARule).filter(SLARule.id == rule_id).first()
+    rule = db.execute(
+        select(SLARule).where(SLARule.id == rule_id)
+    ).scalar_one_or_none()
     if not rule:
         raise HTTPException(status_code=404, detail="SLA rule not found")
     return rule
@@ -45,29 +48,36 @@ def disable_sla_rule(db, rule_id):
 
 def find_rule(db, module_name, priority="medium"):
     return (
-        db.query(SLARule)
-        .filter(
-            SLARule.module_name == module_name,
-            SLARule.priority == priority,
-            SLARule.is_active == True,
-        )
-        .first()
-        or db.query(SLARule)
-        .filter(SLARule.module_name == module_name, SLARule.is_active == True)
-        .first()
+        db.execute(
+            select(SLARule)
+            .where(
+                SLARule.module_name == module_name,
+                SLARule.priority == priority,
+                SLARule.is_active == True,
+            )
+            .limit(1)
+        ).scalar_one_or_none()
+        or db.execute(
+            select(SLARule)
+            .where(
+                SLARule.module_name == module_name,
+                SLARule.is_active == True,
+            )
+            .limit(1)
+        ).scalar_one_or_none()
     )
 
 
 def start_tracking(db, module_name, record_id):
-    existing = (
-        db.query(SLATracking)
-        .filter(
+    existing = db.execute(
+        select(SLATracking)
+        .where(
             SLATracking.module_name == module_name,
             SLATracking.record_id == record_id,
             SLATracking.status == "active",
         )
-        .first()
-    )
+        .limit(1)
+    ).scalar_one_or_none()
     if existing:
         return existing
 
@@ -99,7 +109,9 @@ def start_tracking(db, module_name, record_id):
 
 
 def complete_tracking(db, tracking_id):
-    tracking = db.query(SLATracking).filter(SLATracking.id == tracking_id).first()
+    tracking = db.execute(
+        select(SLATracking).where(SLATracking.id == tracking_id)
+    ).scalar_one_or_none()
     if not tracking:
         raise HTTPException(status_code=404, detail="SLA tracking record not found")
     if tracking.completed_time:
@@ -123,31 +135,40 @@ def complete_tracking(db, tracking_id):
 
 def list_active_tracking(db):
     refresh_breaches(db)
-    return db.query(SLATracking).filter(SLATracking.status == "active").all()
+    return db.execute(
+        select(SLATracking).where(SLATracking.status == "active")
+    ).scalars().all()
 
 
 def list_breached_tracking(db):
     refresh_breaches(db)
-    return db.query(SLATracking).filter(SLATracking.status == "breached").all()
+    return db.execute(
+        select(SLATracking).where(SLATracking.status == "breached")
+    ).scalars().all()
 
 
 def list_module_tracking(db, module_name):
     refresh_breaches(db)
-    return db.query(SLATracking).filter(SLATracking.module_name == module_name).all()
+    return db.execute(
+        select(SLATracking).where(SLATracking.module_name == module_name)
+    ).scalars().all()
 
 
 def get_record_tracking(db, module_name, record_id):
     refresh_breaches(db)
-    return (
-        db.query(SLATracking)
-        .filter(SLATracking.module_name == module_name, SLATracking.record_id == record_id)
-        .all()
-    )
+    return db.execute(
+        select(SLATracking).where(
+            SLATracking.module_name == module_name,
+            SLATracking.record_id == record_id,
+        )
+    ).scalars().all()
 
 
 def refresh_breaches(db):
     now = datetime.utcnow()
-    active = db.query(SLATracking).filter(SLATracking.status == "active").all()
+    active = db.execute(
+        select(SLATracking).where(SLATracking.status == "active")
+    ).scalars().all()
     changed = False
     for tracking in active:
         if tracking.due_time < now:
@@ -165,7 +186,9 @@ def refresh_breaches(db):
 def get_tracked_record(db, module_name, record_id):
     normalized = module_name.lower()
     model = Task if normalized in {"task", "tasks"} else Approval
-    record = db.query(model).filter(model.id == record_id).first()
+    record = db.execute(
+        select(model).where(model.id == record_id)
+    ).scalar_one_or_none()
     if not record:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

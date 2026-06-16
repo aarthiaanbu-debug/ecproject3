@@ -1,19 +1,22 @@
-from sqlalchemy import Column, Integer, Boolean, DateTime
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.database import Base
 
 
 class ChannelMember(Base):
     __tablename__ = "channel_members"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    channel_id = Column(Integer, nullable=False)
+    channel_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    user_id = Column(Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    joined_at = Column(DateTime, default=datetime.utcnow)
+    joined_at: Mapped[datetime | None] = mapped_column(DateTime, default=datetime.utcnow)
 
-    is_muted = Column(Boolean, default=False)
+    is_muted: Mapped[bool | None] = mapped_column(Boolean, default=False)
 
-    last_read_message_id = Column(Integer, nullable=True)
+    last_read_message_id: Mapped[int | None] = mapped_column(Integer, nullable=True)

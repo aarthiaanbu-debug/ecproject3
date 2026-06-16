@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import HTTPException
+from sqlalchemy import func, select
 
 from app.models.approval import Approval
 from app.models.comment import Comment
@@ -21,11 +22,13 @@ def create_tenant(db, payload):
 
 
 def list_tenants(db):
-    return db.query(Organization).all()
+    return db.execute(select(Organization)).scalars().all()
 
 
 def get_tenant(db, tenant_id):
-    tenant = db.query(Organization).filter(Organization.id == tenant_id).first()
+    tenant = db.execute(
+        select(Organization).where(Organization.id == tenant_id)
+    ).scalar_one_or_none()
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant not found")
     return tenant
@@ -42,7 +45,9 @@ def update_tenant(db, tenant_id, payload):
 
 def assign_user_to_tenant(db, payload):
     tenant = get_tenant(db, payload.organization_id)
-    user = db.query(User).filter(User.id == payload.user_id).first()
+    user = db.execute(
+        select(User).where(User.id == payload.user_id)
+    ).scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.organization_id = tenant.id
@@ -54,26 +59,38 @@ def assign_user_to_tenant(db, payload):
 
 def tenant_users(db, tenant_id):
     get_tenant(db, tenant_id)
-    return db.query(User).filter(User.organization_id == tenant_id).all()
+    return db.execute(
+        select(User).where(User.organization_id == tenant_id)
+    ).scalars().all()
 
 
 def refresh_tenant_usage(db, tenant_id):
     get_tenant(db, tenant_id)
-    usage = (
-        db.query(TenantUsage)
-        .filter(TenantUsage.organization_id == tenant_id)
-        .first()
-    )
+    usage = db.execute(
+        select(TenantUsage).where(TenantUsage.organization_id == tenant_id)
+    ).scalar_one_or_none()
     if not usage:
         usage = TenantUsage(organization_id=tenant_id)
         db.add(usage)
 
-    usage.users_count = db.query(User).filter(User.organization_id == tenant_id).count()
-    usage.tasks_count = db.query(Task).filter(Task.organization_id == tenant_id).count()
-    usage.approvals_count = db.query(Approval).count()
-    usage.documents_count = db.query(Document).count()
-    usage.comments_count = db.query(Comment).count()
-    usage.notifications_count = db.query(Notification).count()
+    usage.users_count = db.execute(
+        select(func.count()).select_from(User).where(User.organization_id == tenant_id)
+    ).scalar()
+    usage.tasks_count = db.execute(
+        select(func.count()).select_from(Task).where(Task.organization_id == tenant_id)
+    ).scalar()
+    usage.approvals_count = db.execute(
+        select(func.count()).select_from(Approval)
+    ).scalar()
+    usage.documents_count = db.execute(
+        select(func.count()).select_from(Document)
+    ).scalar()
+    usage.comments_count = db.execute(
+        select(func.count()).select_from(Comment)
+    ).scalar()
+    usage.notifications_count = db.execute(
+        select(func.count()).select_from(Notification)
+    ).scalar()
     usage.last_activity_at = datetime.utcnow()
     db.commit()
     db.refresh(usage)
@@ -85,5 +102,8 @@ def get_tenant_usage(db, tenant_id):
 
 
 def list_tenant_usage(db):
-    tenant_ids = [tenant.id for tenant in db.query(Organization).all()]
+    tenant_ids = [
+        tenant.id
+        for tenant in db.execute(select(Organization)).scalars().all()
+    ]
     return [refresh_tenant_usage(db, tenant_id) for tenant_id in tenant_ids]

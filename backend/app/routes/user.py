@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.user import User
@@ -14,4 +15,4 @@ def get_db():
 
 @router.get("/users")
 def get_users(db: Session = Depends(get_db)):
-    return db.query(User).all()
+    return db.execute(select(User)).scalars().all()

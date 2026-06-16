@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -49,9 +50,9 @@ def register(
     db: Session = Depends(get_db)
 ):
 
-    existing = db.query(User).filter(
-        User.email == email
-    ).first()
+    existing = db.execute(
+        select(User).where(User.email == email)
+    ).scalar_one_or_none()
 
     if existing:
 
@@ -91,9 +92,9 @@ def login(
 ):
     try:
 
-        user = db.query(User).filter(
-            User.email == email
-        ).first()
+        user = db.execute(
+            select(User).where(User.email == email)
+        ).scalar_one_or_none()
 
         if not user:
             return {

@@ -1,30 +1,33 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.database import Base
 
 
 class Channel(Base):
     __tablename__ = "channels"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    tenant_id = Column(Integer, nullable=False)
+    tenant_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    workspace_id = Column(Integer, nullable=False)
+    workspace_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    name = Column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
 
-    description = Column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    channel_type = Column(String, default="PUBLIC")
+    channel_type: Mapped[str | None] = mapped_column(String, default="PUBLIC")
 
-    created_by = Column(Integer, nullable=False)
+    created_by: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    is_archived = Column(Boolean, default=False)
+    is_archived: Mapped[bool | None] = mapped_column(Boolean, default=False)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime, default=datetime.utcnow)
 
-    updated_at = Column(
+    updated_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow

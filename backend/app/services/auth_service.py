@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.utils.password import hash_password
@@ -12,9 +13,9 @@ def forgot_password_service(
     email: str
 ):
 
-    user = db.query(User).filter(
-        User.email == email
-    ).first()
+    user = db.execute(
+        select(User).where(User.email == email)
+    ).scalar_one_or_none()
 
     if not user:
         return {
@@ -41,9 +42,9 @@ def reset_password_service(
             "message": "Invalid token"
         }
 
-    user = db.query(User).filter(
-        User.email == email
-    ).first()
+    user = db.execute(
+        select(User).where(User.email == email)
+    ).scalar_one_or_none()
 
     if not user:
         return {
