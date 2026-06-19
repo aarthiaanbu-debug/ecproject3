@@ -1,8 +1,12 @@
+from sqlalchemy import select
+
 from app.models.comment import Comment
 
 
 def get_comments_service(db, task_id):
-    return db.query(Comment).filter(Comment.task_id == task_id).all()
+    stmt = select(Comment).where(Comment.task_id == task_id)
+
+    return db.execute(stmt).scalars().all()
 
 
 def add_comment_service(db, task_id, content):

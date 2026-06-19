@@ -25,6 +25,14 @@ export default function Sidebar() {
     { path: "/subscription", label: "Subscription" },
     { path: "/workspaces", label: "Workspaces" },
     { path: "/channels", label: "Channels" },
+    { path: "/workspace-chat", label: "Workspace Chat" },
+{ path: "/channel-chat", label: "Channel Chat" },
+
+{ path: "/workspace-tasks", label: "Workspace Tasks" },
+{ path: "/channel-tasks", label: "Channel Tasks" },
+
+{ path: "/task-documents", label: "Task Documents" },
+{ path: "/approval-documents", label: "Approval Documents" },
   ];
 
   const handleLogout = () => {

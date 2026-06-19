@@ -1,10 +1,57 @@
 from fastapi import HTTPException
+from sqlalchemy import select
 
 from app.models.channel import Channel
 from app.models.channel_member import ChannelMember
+from app.models.workspace import Workspace
+from app.models.workspace_member import WorkspaceMember
 
 
 def create_channel(db, data):
+    workspace_stmt = (
+        select(Workspace)
+        .where(
+            Workspace.id == data.workspace_id,
+            Workspace.tenant_id == data.tenant_id,
+            Workspace.is_archived.is_(False)
+        )
+    )
+
+    workspace = db.execute(workspace_stmt).scalar_one_or_none()
+
+    if not workspace:
+        raise HTTPException(
+            status_code=404,
+            detail="Workspace not found"
+        )
+
+    member_stmt = (
+        select(WorkspaceMember)
+        .where(
+            WorkspaceMember.workspace_id == data.workspace_id,
+            WorkspaceMember.user_id == data.created_by,
+            WorkspaceMember.is_active.is_(True)
+        )
+    )
+
+    member = db.execute(member_stmt).scalar_one_or_none()
+
+    if not member:
+        if workspace.created_by != data.created_by:
+            raise HTTPException(
+                status_code=400,
+                detail="User is not workspace member"
+            )
+
+        member = WorkspaceMember(
+            workspace_id=data.workspace_id,
+            user_id=data.created_by,
+            role="Owner",
+            is_active=True
+        )
+
+        db.add(member)
+        db.flush()
 
     channel = Channel(
         tenant_id=data.tenant_id,
@@ -16,6 +63,14 @@ def create_channel(db, data):
     )
 
     db.add(channel)
+    db.flush()
+
+    creator_member = ChannelMember(
+        channel_id=channel.id,
+        user_id=data.created_by
+    )
+
+    db.add(creator_member)
     db.commit()
     db.refresh(channel)
 
@@ -24,16 +79,31 @@ def create_channel(db, data):
 
 def get_channels(db, workspace_id):
 
-    return db.query(Channel).filter(
-        Channel.workspace_id == workspace_id
-    ).all()
+    stmt = (
+        select(Channel)
+        .where(
+            Channel.workspace_id == workspace_id,
+            Channel.is_archived.is_(False)
+        )
+    )
+
+    return db.execute(
+        stmt
+    ).scalars().all()
 
 
 def get_channel(db, channel_id):
 
-    channel = db.query(Channel).filter(
-        Channel.id == channel_id
-    ).first()
+    stmt = (
+        select(Channel)
+        .where(
+            Channel.id == channel_id
+        )
+    )
+
+    channel = db.execute(
+        stmt
+    ).scalar_one_or_none()
 
     if not channel:
         raise HTTPException(
@@ -82,10 +152,17 @@ def restore_channel(db, channel_id):
 
 def join_channel(db, channel_id, user_id):
 
-    existing = db.query(ChannelMember).filter(
-        ChannelMember.channel_id == channel_id,
-        ChannelMember.user_id == user_id
-    ).first()
+    existing_stmt = (
+        select(ChannelMember)
+        .where(
+            ChannelMember.channel_id == channel_id,
+            ChannelMember.user_id == user_id
+        )
+    )
+
+    existing = db.execute(
+        existing_stmt
+    ).scalar_one_or_none()
 
     if existing:
         raise HTTPException(
@@ -106,10 +183,17 @@ def join_channel(db, channel_id, user_id):
 
 def leave_channel(db, channel_id, user_id):
 
-    member = db.query(ChannelMember).filter(
-        ChannelMember.channel_id == channel_id,
-        ChannelMember.user_id == user_id
-    ).first()
+    member_stmt = (
+        select(ChannelMember)
+        .where(
+            ChannelMember.channel_id == channel_id,
+            ChannelMember.user_id == user_id
+        )
+    )
+
+    member = db.execute(
+        member_stmt
+    ).scalar_one_or_none()
 
     if not member:
         raise HTTPException(

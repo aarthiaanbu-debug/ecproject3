@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# DATABASE
-from app.database import Base, engine
-from app.db_migrations import add_missing_columns
+from fastapi_pagination import add_pagination
 
 # RATE LIMIT
 from slowapi.middleware import SlowAPIMiddleware
@@ -28,6 +25,11 @@ import app.models.workspace
 import app.models.workspace_member
 import app.models.channel
 import app.models.channel_member
+import app.models.workspace_message
+import app.models.channel_task
+import app.models.task_document
+import app.models.approval_document
+import app.models.role_permission
 
 
 # =========================
@@ -54,6 +56,14 @@ from app.routes import tenant
 from app.routes import leave
 from app.routes import workspace
 from app.routes import channel
+from app.routes import workspace_message
+from app.routes import channel_message
+from app.routes import workspace_task
+from app.routes import channel_task
+from app.routes import task_document
+from app.routes import approval_document
+from app.routes import validation
+from app.routes import role_permission
 
 # =========================
 # FASTAPI INIT
@@ -65,12 +75,7 @@ app = FastAPI(
     description="Task Management + Kanban + Approval Workflow System",
 )
 
-# =========================
-# CREATE TABLES
-# =========================
-
-Base.metadata.create_all(bind=engine)
-add_missing_columns()
+# Schema changes are managed by Alembic migrations.
 
 # =========================
 # CORS
@@ -124,14 +129,19 @@ app.include_router(tenant.router)
 app.include_router(leave.router)
 app.include_router(workspace.router)
 app.include_router(channel.router)
+app.include_router(workspace_message.router)
+app.include_router(channel_message.router)
+app.include_router(workspace_task.router)
+app.include_router(channel_task.router)
+app.include_router(task_document.router)
+app.include_router(approval_document.router)
+app.include_router(validation.router)
+app.include_router(role_permission.router)
 
-# =========================
-# ROOT
-# =========================
+add_pagination(app)
 
 @app.get("/")
 def root():
-
     return {
-        "message": "🚀 Backend running successfully"
+        "message": "Backend running successfully"
     }

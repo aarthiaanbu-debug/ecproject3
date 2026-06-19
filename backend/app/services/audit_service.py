@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from app.models.audit import AuditLog
 
 
@@ -41,34 +43,41 @@ def create_audit_log(
 
 def get_audit_logs(db):
 
-    logs = db.query(AuditLog).all()
+    stmt = select(AuditLog)
+
+    logs = db.execute(stmt).scalars().all()
 
     return logs
 
 
 def get_audit_log(db, log_id):
-    return db.query(AuditLog).filter(AuditLog.id == log_id).first()
+    stmt = select(AuditLog).where(AuditLog.id == log_id)
+
+    return db.execute(stmt).scalar_one_or_none()
 
 
 def get_audit_logs_by_module(db, module_name):
-    return (
-        db.query(AuditLog)
-        .filter(AuditLog.module_name.ilike(module_name))
-        .all()
+    stmt = (
+        select(AuditLog)
+        .where(AuditLog.module_name.ilike(module_name))
     )
+
+    return db.execute(stmt).scalars().all()
 
 
 def get_audit_logs_by_user(db, user_id):
-    return db.query(AuditLog).filter(AuditLog.user_id == user_id).all()
+    stmt = select(AuditLog).where(AuditLog.user_id == user_id)
+
+    return db.execute(stmt).scalars().all()
 
 
 def get_audit_logs_by_date_range(db, start_date, end_date):
-    query = db.query(AuditLog)
+    stmt = select(AuditLog)
 
     if start_date:
-        query = query.filter(AuditLog.created_at >= start_date)
+        stmt = stmt.where(AuditLog.created_at >= start_date)
 
     if end_date:
-        query = query.filter(AuditLog.created_at <= end_date)
+        stmt = stmt.where(AuditLog.created_at <= end_date)
 
-    return query.all()
+    return db.execute(stmt).scalars().all()

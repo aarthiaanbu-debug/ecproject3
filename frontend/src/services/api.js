@@ -76,12 +76,14 @@ export const updateApprovalStatus = (id, status) =>
 // ================= COMMENTS =================
 
 export const getComments = (task_id) =>
-  API.get(`/comment/${task_id}`);
+  API.get(`/comments/${task_id}`);
 
 export const addComment = (data) =>
-  API.post("/comment/create", null, {
-    params: data,
+  API.post(`/comments/${data.task_id}`, null, {
+    params: { content: data.content },
   });
+
+export const createComment = addComment;
 
 
 // ================= ANALYTICS =================
@@ -255,7 +257,7 @@ export const getChannel = (id) =>
   API.get(`/channels/${id}`);
 
 export const getWorkspaceChannels = (id) =>
-  API.get(`/workspaces/${id}/channels`);
+  API.get(`/channels/workspace/${id}`);
 
 export const updateChannel = (id, data) =>
   API.put(`/channels/${id}`, data);
@@ -271,5 +273,71 @@ export const joinChannel = (channelId, userId) =>
 
 export const leaveChannel = (channelId, userId) =>
   API.post(`/channels/${channelId}/leave/${userId}`);
+// ================= WORKSPACE MESSAGES =================
+
+export const createWorkspaceMessage = (data) =>
+  API.post("/workspace-messages", data);
+
+export const getWorkspaceMessages = (workspaceId) =>
+  API.get(`/workspace-messages/${workspaceId}`);
+
+export const updateWorkspaceMessage = (messageId, data) =>
+  API.put(`/workspace-messages/${messageId}`, data);
+
+export const deleteWorkspaceMessage = (messageId, params) =>
+  API.delete(`/workspace-messages/${messageId}`, { params });
+
+
+// ================= CHANNEL MESSAGES =================
+
+export const createChannelMessage = (data) =>
+  API.post("/channel-messages", data);
+
+export const getChannelMessages = (channelId) =>
+  API.get(`/channel-messages/${channelId}`);
+
+
+// ================= WORKSPACE TASKS =================
+
+export const createWorkspaceTask = (data) =>
+  API.post("/workspace-tasks", data);
+
+export const getWorkspaceTasks = (workspaceId) =>
+  API.get(`/workspace-tasks/workspace/${workspaceId}`);
+
+
+// ================= CHANNEL TASKS =================
+
+export const createChannelTask = (data) =>
+  API.post("/channel-tasks", data);
+
+export const getChannelTasks = (channelId) =>
+  API.get(`/channel-tasks/channel/${channelId}`);
+
+
+// ================= TASK DOCUMENTS =================
+
+export const uploadTaskDocument = (formData) =>
+  API.post("/task-documents/upload", formData,{
+    headers:{
+      "Content-Type":"multipart/form-data"
+    }
+  });
+
+export const getTaskDocuments = (taskId) =>
+  API.get(`/task-documents/task/${taskId}`);
+
+
+// ================= APPROVAL DOCUMENTS =================
+
+export const uploadApprovalDocument = (formData) =>
+  API.post("/approval-documents/upload", formData,{
+    headers:{
+      "Content-Type":"multipart/form-data"
+    }
+  });
+
+export const getApprovalDocuments = (approvalId) =>
+  API.get(`/approval-documents/approval/${approvalId}`);
 
 export default API;

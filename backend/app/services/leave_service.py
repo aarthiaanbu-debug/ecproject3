@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from app.models.leave import LeaveRequest
 from app.models.notification import Notification
 from app.services.audit_service import create_audit_log
@@ -35,11 +37,18 @@ def create_leave_request(db, payload):
 
 
 def list_leave_requests(db):
-    return db.query(LeaveRequest).order_by(LeaveRequest.created_at.desc()).all()
+    stmt = (
+        select(LeaveRequest)
+        .order_by(LeaveRequest.created_at.desc())
+    )
+
+    return db.execute(stmt).scalars().all()
 
 
 def update_leave_status(db, leave_id, status, approved_by=1):
-    leave = db.query(LeaveRequest).filter(LeaveRequest.id == leave_id).first()
+    stmt = select(LeaveRequest).where(LeaveRequest.id == leave_id)
+
+    leave = db.execute(stmt).scalar_one_or_none()
 
     if not leave:
         return {"message": "Leave request not found"}

@@ -1,9 +1,13 @@
+from sqlalchemy import select
+
 from app.models.approval import Approval
 from app.services.audit_service import create_audit_log
 
 
 def get_approvals_service(db):
-    return db.query(Approval).all()
+    stmt = select(Approval)
+
+    return db.execute(stmt).scalars().all()
 
 
 def create_approval_service(db, data):
@@ -30,7 +34,12 @@ def create_approval_service(db, data):
 
 
 def update_approval_status_service(db, approval_id, status):
-    approval = db.query(Approval).filter(Approval.id == approval_id).first()
+    stmt = (
+        select(Approval)
+        .where(Approval.id == approval_id)
+    )
+
+    approval = db.execute(stmt).scalar_one_or_none()
 
     if not approval:
         return {"message": "Approval not found"}

@@ -29,7 +29,12 @@ import TenantManagement from "./pages/TenantManagement";
 import TenantUsage from "./pages/TenantUsage";
 import Workspace from "./pages/Workspace";
 import Channel from "./pages/Channel";
-
+import WorkspaceChat from "./pages/WorkspaceChat";
+import ChannelChat from "./pages/ChannelChat";
+import WorkspaceTasks from "./pages/WorkspaceTasks";
+import ChannelTasks from "./pages/ChannelTasks";
+import TaskDocuments from "./pages/TaskDocuments";
+import ApprovalDocuments from "./pages/ApprovalDocuments";
 // components
 import AnalyticsChart from "./components/AnalyticsChart";
 import NotificationBell from "./components/NotificationBell";
@@ -76,8 +81,13 @@ export default function App() {
         <Route path="/admin/tenants" element={<RoleGuard roles={["admin"]}><TenantManagement /></RoleGuard>} />
         <Route path="/dashboard/tenant-usage" element={<RoleGuard roles={["admin", "manager"]}><TenantUsage /></RoleGuard>} />
         <Route path="/workspaces" element={<Workspace />} />
-
-<Route path="/channels" element={<Channel />} />
+        <Route path="/channels" element={<Channel />} />
+        <Route path="/workspace-chat" element={<WorkspaceChat />} />
+        <Route path="/channel-chat" element={<ChannelChat />} />
+        <Route path="/workspace-tasks" element={<WorkspaceTasks />} />
+        <Route path="/channel-tasks" element={<ChannelTasks />} />
+        <Route path="/task-documents" element={<TaskDocuments />} />
+        <Route path="/approval-documents" element={<ApprovalDocuments />} />
       </Route>
 
     </Routes>

@@ -1,9 +1,13 @@
+from sqlalchemy import select
+
 from app.models.notification import Notification
 
 
 def get_notifications(db):
 
-    return db.query(Notification).all()
+    stmt = select(Notification)
+
+    return db.execute(stmt).scalars().all()
 
 
 def mark_read(
@@ -11,9 +15,9 @@ def mark_read(
     notification_id
 ):
 
-    notification = db.query(Notification).filter(
-        Notification.id == notification_id
-    ).first()
+    stmt = select(Notification).where(Notification.id == notification_id)
+
+    notification = db.execute(stmt).scalar_one_or_none()
 
     if not notification:
 

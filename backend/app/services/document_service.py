@@ -1,6 +1,8 @@
 import os
 import shutil
 
+from sqlalchemy import select
+
 from app.models.document import Document
 
 UPLOAD_FOLDER = "uploads"
@@ -46,4 +48,6 @@ def upload_document(
 
 def get_documents(db):
 
-    return db.query(Document).all()
+    stmt = select(Document)
+
+    return db.execute(stmt).scalars().all()

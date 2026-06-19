@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from app.models.task import Task
 from app.models.notification import Notification
@@ -59,9 +60,11 @@ def get_tasks_service(
     current_user
 ):
 
-    tasks = db.query(Task).filter(
+    stmt = select(Task).where(
         Task.organization_id == current_user.organization_id
-    ).all()
+    )
+
+    tasks = db.execute(stmt).scalars().all()
 
     return tasks
 
@@ -78,7 +81,13 @@ def get_tasks_service(
 
     skip = (page - 1) * limit
 
-    tasks = db.query(Task).offset(skip).limit(limit).all()
+    stmt = (
+        select(Task)
+        .offset(skip)
+        .limit(limit)
+    )
+
+    tasks = db.execute(stmt).scalars().all()
 
     return {
         "page": page,
@@ -103,9 +112,11 @@ async def update_task_service(
     status
 ):
 
-    task = db.query(Task).filter(
+    stmt = select(Task).where(
         Task.id == task_id
-    ).first()
+    )
+
+    task = db.execute(stmt).scalar_one_or_none()
 
     if not task:
         return {
@@ -150,9 +161,11 @@ def delete_task_service(
     task_id: int
 ):
 
-    task = db.query(Task).filter(
+    stmt = select(Task).where(
         Task.id == task_id
-    ).first()
+    )
+
+    task = db.execute(stmt).scalar_one_or_none()
 
     if not task:
         return {
@@ -198,9 +211,11 @@ def assign_task_service(
     user: str
 ):
 
-    task = db.query(Task).filter(
+    stmt = select(Task).where(
         Task.id == task_id
-    ).first()
+    )
+
+    task = db.execute(stmt).scalar_one_or_none()
 
     if not task:
         return {
