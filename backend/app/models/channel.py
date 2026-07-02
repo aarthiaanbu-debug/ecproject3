@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -13,7 +13,9 @@ class Channel(Base):
 
     tenant_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    workspace_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    workspace_id: Mapped[int] = mapped_column(ForeignKey("workspaces.id"), nullable=False)
+
+    project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id"), nullable=True)
 
     name: Mapped[str] = mapped_column(String, nullable=False)
 
@@ -21,7 +23,7 @@ class Channel(Base):
 
     channel_type: Mapped[str | None] = mapped_column(String, default="PUBLIC")
 
-    created_by: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     is_archived: Mapped[bool | None] = mapped_column(Boolean, default=False)
 

@@ -33,6 +33,17 @@ export default function Sidebar() {
 
 { path: "/task-documents", label: "Task Documents" },
 { path: "/approval-documents", label: "Approval Documents" },
+{ path: "/teams", label: "Teams" },
+{ path: "/projects", label: "Projects" },
+{ path: "/project-teams", label: "Project Teams" },
+{ path: "/project-channels", label: "Project Channels" },
+{ path: "/project-tasks", label: "Project Tasks" },
+{ path: "/project-documents", label: "Project Documents" },
+{ path: "/meeting-scheduler", label: "Meeting Scheduler" },
+{ path: "/meeting-notes", label: "Meeting Notes" },
+{ path: "/ai-meeting-summary", label: "AI Meeting Summary" },
+{ path: "/project-calendar", label: "Project Calendar" },
+{ path: "/team-workload-dashboard", label: "Team Workload" },
   ];
 
   const handleLogout = () => {
@@ -43,10 +54,15 @@ export default function Sidebar() {
   return (
     <div className="w-64 min-h-screen bg-slate-900 text-white p-5 shadow-2xl flex flex-col">
       <div className="flex items-center justify-between mb-8">
-        <div>
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard")}
+          className="text-left"
+          title="Go to dashboard"
+        >
           <h1 className="text-3xl font-extrabold tracking-wide">EC APP</h1>
           <p className="text-gray-400 text-sm mt-1">Enterprise Workflow</p>
-        </div>
+        </button>
         <NotificationBell />
       </div>
 

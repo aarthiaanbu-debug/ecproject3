@@ -30,6 +30,7 @@ import app.models.channel_task
 import app.models.task_document
 import app.models.approval_document
 import app.models.role_permission
+import app.models.phase10c
 
 
 # =========================
@@ -64,6 +65,7 @@ from app.routes import task_document
 from app.routes import approval_document
 from app.routes import validation
 from app.routes import role_permission
+from app.routes import phase10c
 
 # =========================
 # FASTAPI INIT
@@ -137,6 +139,19 @@ app.include_router(task_document.router)
 app.include_router(approval_document.router)
 app.include_router(validation.router)
 app.include_router(role_permission.router)
+app.include_router(phase10c.teams_router)
+app.include_router(phase10c.team_members_router)
+app.include_router(phase10c.projects_router)
+app.include_router(phase10c.project_teams_router)
+app.include_router(phase10c.project_channels_router)
+app.include_router(phase10c.project_tasks_router)
+app.include_router(phase10c.project_documents_router)
+app.include_router(phase10c.meetings_router)
+app.include_router(phase10c.meeting_attendees_router)
+app.include_router(phase10c.meeting_notes_router)
+app.include_router(phase10c.ai_meeting_summary_router)
+app.include_router(phase10c.project_calendar_router)
+app.include_router(phase10c.workload_router)
 
 add_pagination(app)
 

@@ -35,10 +35,20 @@ import WorkspaceTasks from "./pages/WorkspaceTasks";
 import ChannelTasks from "./pages/ChannelTasks";
 import TaskDocuments from "./pages/TaskDocuments";
 import ApprovalDocuments from "./pages/ApprovalDocuments";
+import Teams from "./pages/Teams";
+import TeamDetails from "./pages/TeamDetails";
+import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
+import ProjectTeams from "./pages/ProjectTeams";
+import ProjectChannels from "./pages/ProjectChannels";
+import ProjectTasks from "./pages/ProjectTasks";
+import ProjectDocuments from "./pages/ProjectDocuments";
+import MeetingScheduler from "./pages/MeetingScheduler";
+import MeetingNotes from "./pages/MeetingNotes";
+import AIMeetingSummary from "./pages/AIMeetingSummary";
+import ProjectCalendar from "./pages/ProjectCalendar";
+import TeamWorkloadDashboard from "./pages/TeamWorkloadDashboard";
 // components
-import AnalyticsChart from "./components/AnalyticsChart";
-import NotificationBell from "./components/NotificationBell";
-
 // layouts
 import PublicLayout from "./layout/PublicLayout";
 import PrivateLayout from "./layout/PrivateLayout";
@@ -88,6 +98,19 @@ export default function App() {
         <Route path="/channel-tasks" element={<ChannelTasks />} />
         <Route path="/task-documents" element={<TaskDocuments />} />
         <Route path="/approval-documents" element={<ApprovalDocuments />} />
+        <Route path="/teams" element={<Teams />} />
+        <Route path="/teams/:teamId" element={<TeamDetails />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:projectId" element={<ProjectDetails />} />
+        <Route path="/project-teams" element={<ProjectTeams />} />
+        <Route path="/project-channels" element={<ProjectChannels />} />
+        <Route path="/project-tasks" element={<ProjectTasks />} />
+        <Route path="/project-documents" element={<ProjectDocuments />} />
+        <Route path="/meeting-scheduler" element={<MeetingScheduler />} />
+        <Route path="/meeting-notes" element={<MeetingNotes />} />
+        <Route path="/ai-meeting-summary" element={<AIMeetingSummary />} />
+        <Route path="/project-calendar" element={<ProjectCalendar />} />
+        <Route path="/team-workload-dashboard" element={<TeamWorkloadDashboard />} />
       </Route>
 
     </Routes>
