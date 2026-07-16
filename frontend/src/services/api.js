@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000",
 });
 
 // TOKEN
@@ -23,9 +23,24 @@ export const loginUser = (data) =>
     params: data,
   });
 
+export const refreshAccessToken = (refreshToken) =>
+  API.post("/auth/refresh", null, {
+    params: { refresh_token: refreshToken },
+  });
+
 export const registerUser = (data) =>
   API.post("/auth/register", null, {
     params: data,
+  });
+
+export const forgotPassword = (email) =>
+  API.post("/forgot-password", null, {
+    params: { email },
+  });
+
+export const resetPassword = (token, newPassword) =>
+  API.post("/reset-password", null, {
+    params: { token, new_password: newPassword },
   });
 
 
@@ -90,6 +105,69 @@ export const createComment = addComment;
 
 export const getAnalytics = () =>
   API.get("/analytics/");
+
+// ================= PHASE 10D PLATFORM SERVICES =================
+
+export const getWorkflows = (params) => API.get("/workflows", { params });
+export const createWorkflow = (data) => API.post("/workflows", data);
+export const updateWorkflow = (id, data) => API.put(`/workflows/${id}`, data);
+export const disableWorkflow = (id) => API.delete(`/workflows/${id}`);
+export const addWorkflowRule = (workflowId, data) =>
+  API.post(`/workflows/${workflowId}/rules`, data);
+export const getWorkflowRules = (workflowId) =>
+  API.get(`/workflows/${workflowId}/rules`);
+export const executeWorkflow = (workflowId, data) =>
+  API.post(`/workflows/${workflowId}/execute`, data);
+export const getWorkflowExecutions = (workflowId) =>
+  API.get(`/workflows/${workflowId}/executions`);
+
+export const getNotificationRules = (params) =>
+  API.get("/notification-rules", { params });
+export const createNotificationRule = (data) =>
+  API.post("/notification-rules", data);
+export const updateNotificationRule = (id, data) =>
+  API.put(`/notification-rules/${id}`, data);
+export const disableNotificationRule = (id) =>
+  API.delete(`/notification-rules/${id}`);
+
+export const globalSearch = (params) => API.get("/search/global", { params });
+export const searchProjects = (params) => API.get("/search/projects", { params });
+export const searchTasks = (params) => API.get("/search/tasks", { params });
+export const searchDocuments = (params) => API.get("/search/documents", { params });
+export const searchMessages = (params) => API.get("/search/messages", { params });
+
+export const saveSearch = (data) => API.post("/saved-searches", data);
+export const getSavedSearches = (params) => API.get("/saved-searches", { params });
+export const deleteSavedSearch = (id) => API.delete(`/saved-searches/${id}`);
+
+export const getPhase10DAnalytics = (area, params) =>
+  API.get(`/analytics/${area}`, { params });
+
+export const createKnowledgeCategory = (data) =>
+  API.post("/knowledge/categories", data);
+export const getKnowledgeCategories = (params) =>
+  API.get("/knowledge/categories", { params });
+export const createKnowledgeArticle = (data) =>
+  API.post("/knowledge/articles", data);
+export const getKnowledgeArticles = (params) =>
+  API.get("/knowledge/articles", { params });
+export const getKnowledgeArticle = (id) =>
+  API.get(`/knowledge/articles/${id}`);
+export const updateKnowledgeArticle = (id, data) =>
+  API.put(`/knowledge/articles/${id}`, data);
+export const archiveKnowledgeArticle = (id) =>
+  API.delete(`/knowledge/articles/${id}`);
+
+export const createCustomForm = (data) => API.post("/forms", data);
+export const getCustomForms = (params) => API.get("/forms", { params });
+export const updateCustomForm = (id, data) => API.put(`/forms/${id}`, data);
+export const disableCustomForm = (id) => API.delete(`/forms/${id}`);
+export const addCustomFormField = (formId, data) =>
+  API.post(`/forms/${formId}/fields`, data);
+export const getCustomFormFields = (formId) =>
+  API.get(`/forms/${formId}/fields`);
+
+export const getReport = (type, params) => API.get(`/reports/${type}`, { params });
 
 
 // ================= NOTIFICATIONS =================
@@ -278,8 +356,8 @@ export const leaveChannel = (channelId, userId) =>
 export const createWorkspaceMessage = (data) =>
   API.post("/workspace-messages", data);
 
-export const getWorkspaceMessages = (workspaceId) =>
-  API.get(`/workspace-messages/${workspaceId}`);
+export const getWorkspaceMessages = (workspaceId, params) =>
+  API.get(`/workspace-messages/${workspaceId}`, { params });
 
 export const updateWorkspaceMessage = (messageId, data) =>
   API.put(`/workspace-messages/${messageId}`, data);
@@ -293,8 +371,14 @@ export const deleteWorkspaceMessage = (messageId, params) =>
 export const createChannelMessage = (data) =>
   API.post("/channel-messages", data);
 
-export const getChannelMessages = (channelId) =>
-  API.get(`/channel-messages/${channelId}`);
+export const getChannelMessages = (channelId, params) =>
+  API.get(`/channel-messages/${channelId}`, { params });
+
+export const updateChannelMessage = (messageId, data) =>
+  API.put(`/channel-messages/${messageId}`, data);
+
+export const deleteChannelMessage = (messageId, params) =>
+  API.delete(`/channel-messages/${messageId}`, { params });
 
 
 // ================= WORKSPACE TASKS =================
@@ -305,6 +389,12 @@ export const createWorkspaceTask = (data) =>
 export const getWorkspaceTasks = (workspaceId) =>
   API.get(`/workspace-tasks/workspace/${workspaceId}`);
 
+export const updateWorkspaceTask = (taskId, data) =>
+  API.put(`/workspace-tasks/${taskId}`, data);
+
+export const deleteWorkspaceTask = (taskId) =>
+  API.delete(`/workspace-tasks/${taskId}`);
+
 
 // ================= CHANNEL TASKS =================
 
@@ -313,6 +403,12 @@ export const createChannelTask = (data) =>
 
 export const getChannelTasks = (channelId) =>
   API.get(`/channel-tasks/channel/${channelId}`);
+
+export const updateChannelTask = (taskId, data) =>
+  API.put(`/channel-tasks/${taskId}`, data);
+
+export const deleteChannelTask = (taskId) =>
+  API.delete(`/channel-tasks/${taskId}`);
 
 
 // ================= TASK DOCUMENTS =================
@@ -324,8 +420,17 @@ export const uploadTaskDocument = (formData) =>
     }
   });
 
-export const getTaskDocuments = (taskId) =>
-  API.get(`/task-documents/task/${taskId}`);
+export const getTaskDocuments = (taskId, params) =>
+  API.get(`/task-documents/task/${taskId}`, { params });
+
+export const deleteTaskDocument = (documentId, params) =>
+  API.delete(`/task-documents/${documentId}`, { params });
+
+export const downloadTaskDocument = (documentId, params) =>
+  API.get(`/task-documents/${documentId}/download`, {
+    params,
+    responseType: "blob",
+  });
 
 
 // ================= APPROVAL DOCUMENTS =================
@@ -337,7 +442,18 @@ export const uploadApprovalDocument = (formData) =>
     }
   });
 
-export const getApprovalDocuments = (approvalId) =>
-  API.get(`/approval-documents/approval/${approvalId}`);
+export const getApprovalDocuments = (approvalId, params) =>
+  API.get(`/approval-documents/approval/${approvalId}`, { params });
+
+export const deleteApprovalDocument = (documentId, params) =>
+  API.delete(`/approval-documents/${documentId}`, { params });
+
+export const downloadApprovalDocument = (documentId, params) =>
+  API.get(`/approval-documents/${documentId}/download`, {
+    params,
+    responseType: "blob",
+  });
+
+export * from "../api/api";
 
 export default API;

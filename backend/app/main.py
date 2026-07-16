@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
+from starlette.middleware.sessions import SessionMiddleware
 
 # RATE LIMIT
 from slowapi.middleware import SlowAPIMiddleware
@@ -31,6 +32,7 @@ import app.models.task_document
 import app.models.approval_document
 import app.models.role_permission
 import app.models.phase10c
+import app.models.phase10d
 
 
 # =========================
@@ -66,6 +68,7 @@ from app.routes import approval_document
 from app.routes import validation
 from app.routes import role_permission
 from app.routes import phase10c
+from app.routes import phase10d
 
 # =========================
 # FASTAPI INIT
@@ -95,6 +98,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SessionMiddleware, secret_key="ec-app-oauth-session")
 
 # =========================
 # RATE LIMIT
@@ -152,6 +157,14 @@ app.include_router(phase10c.meeting_notes_router)
 app.include_router(phase10c.ai_meeting_summary_router)
 app.include_router(phase10c.project_calendar_router)
 app.include_router(phase10c.workload_router)
+app.include_router(phase10d.workflows_router)
+app.include_router(phase10d.notification_rules_router)
+app.include_router(phase10d.search_router)
+app.include_router(phase10d.saved_searches_router)
+app.include_router(phase10d.analytics10d_router)
+app.include_router(phase10d.knowledge_router)
+app.include_router(phase10d.forms_router)
+app.include_router(phase10d.reports_router)
 
 add_pagination(app)
 

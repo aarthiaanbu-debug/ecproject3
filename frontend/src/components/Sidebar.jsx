@@ -44,10 +44,29 @@ export default function Sidebar() {
 { path: "/ai-meeting-summary", label: "AI Meeting Summary" },
 { path: "/project-calendar", label: "Project Calendar" },
 { path: "/team-workload-dashboard", label: "Team Workload" },
+{ path: "/workflow-builder", label: "Workflow Builder" },
+{ path: "/notification-rules", label: "Notification Rules" },
+{ path: "/global-search", label: "Global Search" },
+{ path: "/saved-searches", label: "Saved Searches" },
+{ path: "/phase10d/analytics", label: "Analytics Dashboard" },
+{ path: "/analytics/projects", label: "Project Analytics" },
+{ path: "/analytics/teams", label: "Team Analytics" },
+{ path: "/analytics/tasks", label: "Task Analytics" },
+{ path: "/analytics/approvals", label: "Approval Analytics" },
+{ path: "/analytics/documents", label: "Document Analytics" },
+{ path: "/knowledge-base", label: "Knowledge Base" },
+{ path: "/article-editor", label: "Article Editor" },
+{ path: "/custom-forms", label: "Custom Forms" },
+{ path: "/reports", label: "Reports" },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("tenant_id");
+    localStorage.removeItem("role");
     navigate("/login");
   };
 

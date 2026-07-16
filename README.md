@@ -53,7 +53,7 @@ npm run dev
 **3. Backend setup**
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 
 🔗 API Endpoints
 GET /tasks

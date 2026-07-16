@@ -18,6 +18,8 @@ import Subscription from "./pages/Subscription";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import LeaveRequest from "./pages/LeaveRequest";
 import SLARules from "./pages/SLARules";
 import SLADashboard from "./pages/SLADashboard";
@@ -48,6 +50,20 @@ import MeetingNotes from "./pages/MeetingNotes";
 import AIMeetingSummary from "./pages/AIMeetingSummary";
 import ProjectCalendar from "./pages/ProjectCalendar";
 import TeamWorkloadDashboard from "./pages/TeamWorkloadDashboard";
+import WorkflowBuilder from "./pages/WorkflowBuilder";
+import NotificationRules from "./pages/NotificationRules";
+import GlobalSearch from "./pages/GlobalSearch";
+import SavedSearches from "./pages/SavedSearches";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+import ProjectAnalytics from "./pages/ProjectAnalytics";
+import TeamAnalytics from "./pages/TeamAnalytics";
+import TaskAnalytics from "./pages/TaskAnalytics";
+import ApprovalAnalytics from "./pages/ApprovalAnalytics";
+import DocumentAnalytics from "./pages/DocumentAnalytics";
+import KnowledgeBase from "./pages/KnowledgeBase";
+import ArticleEditor from "./pages/ArticleEditor";
+import CustomForms from "./pages/CustomForms";
+import ReportsPage from "./pages/ReportsPage";
 // components
 // layouts
 import PublicLayout from "./layout/PublicLayout";
@@ -63,6 +79,8 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
       <Route element={<PrivateLayout />}>
@@ -111,6 +129,20 @@ export default function App() {
         <Route path="/ai-meeting-summary" element={<AIMeetingSummary />} />
         <Route path="/project-calendar" element={<ProjectCalendar />} />
         <Route path="/team-workload-dashboard" element={<TeamWorkloadDashboard />} />
+        <Route path="/workflow-builder" element={<RoleGuard roles={["admin", "manager"]}><WorkflowBuilder /></RoleGuard>} />
+        <Route path="/notification-rules" element={<RoleGuard roles={["admin", "manager"]}><NotificationRules /></RoleGuard>} />
+        <Route path="/global-search" element={<GlobalSearch />} />
+        <Route path="/saved-searches" element={<SavedSearches />} />
+        <Route path="/phase10d/analytics" element={<AnalyticsDashboard />} />
+        <Route path="/analytics/projects" element={<ProjectAnalytics />} />
+        <Route path="/analytics/teams" element={<TeamAnalytics />} />
+        <Route path="/analytics/tasks" element={<TaskAnalytics />} />
+        <Route path="/analytics/approvals" element={<ApprovalAnalytics />} />
+        <Route path="/analytics/documents" element={<DocumentAnalytics />} />
+        <Route path="/knowledge-base" element={<KnowledgeBase />} />
+        <Route path="/article-editor" element={<ArticleEditor />} />
+        <Route path="/custom-forms" element={<RoleGuard roles={["admin", "manager"]}><CustomForms /></RoleGuard>} />
+        <Route path="/reports" element={<ReportsPage />} />
       </Route>
 
     </Routes>

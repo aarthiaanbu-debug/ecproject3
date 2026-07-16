@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 
 export default function Login() {
@@ -8,14 +8,35 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const role = params.get("role");
+    if (accessToken) {
+      localStorage.setItem("token", accessToken);
+      if (refreshToken) localStorage.setItem("refresh_token", refreshToken);
+      if (role) localStorage.setItem("role", role.trim().toLowerCase());
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const res = await loginUser({ email, password });
 
+      if (!res.data.access_token) {
+        throw new Error(res.data.error || "Invalid credentials");
+      }
       localStorage.setItem("token", res.data.access_token);
-      localStorage.setItem("refresh_token", res.data.refresh_token);
+      if (res.data.refresh_token) {
+        localStorage.setItem("refresh_token", res.data.refresh_token);
+      }
+      localStorage.setItem("user", JSON.stringify(res.data.user || {}));
+      localStorage.setItem("user_id", String(res.data.user?.id || ""));
+      localStorage.setItem("tenant_id", String(res.data.user?.tenant_id || ""));
       localStorage.setItem(
         "role",
         String(res.data.role || "employee").trim().toLowerCase()
@@ -57,6 +78,16 @@ export default function Login() {
           </button>
 
         </form>
+
+        <button
+          type="button"
+          className="w-full mt-3 border border-cyan-400 text-cyan-100 p-3 rounded font-bold"
+          onClick={() => {
+            window.location.href = "http://127.0.0.1:8000/auth/google/login";
+          }}
+        >
+          Continue with Google
+        </button>
 
         <p className="mt-4 text-center text-sm">
           Don't have account?{" "}
